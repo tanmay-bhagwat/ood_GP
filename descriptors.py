@@ -29,15 +29,18 @@ def pairwise_distances(R:torch.Tensor):
 
 class BPDescriptor:
 
-    def __init__(self, X) -> None:
+    def __init__(self, X, r_cut_ls, sigma_ls, n_basis) -> None:
         self.X = X
+        self.r_cut_ls = r_cut_ls
+        self.sigma_ls = sigma_ls
+        self.n_basis = n_basis
 
 
     def cutoff_fn(self, r, r_cut):
         return 0.5 * (torch.cos(torch.pi*r/r_cut)+1) * (r<r_cut)
 
 
-    def bp_twobody(self, R:torch.Tensor, r_cut:float=5.0, n_basis:int=4, sigma:float=1.0):
+    def bp_twobody(self, R, r_cut:float=5.0, sigma:float=1.0):
         """
         Returns radial symmetry descriptors for all atoms
 
@@ -61,7 +64,7 @@ class BPDescriptor:
         # Behler-Parrinello G2 symm function
         r = torch.linalg.norm(R.unsqueeze(0) - R.unsqueeze(1), dim=-1) # (N_at, N_at) tensor of interatomic distances
         fc = self.cutoff_fn(r, r_cut) # Compute cutoff values for all r
-        centers = torch.linspace(0, r_cut, n_basis) # Centers of n_basis exp basis functions
+        centers = torch.linspace(0, r_cut, self.n_basis) # Centers of n_basis exp basis functions
 
         arr = []
         for c in centers:
@@ -69,11 +72,11 @@ class BPDescriptor:
             arr.append(torch.sum(fc*g, dim=0)) # Each arr element is (N_at,)
         
         desc = torch.stack(arr, dim=1) # (N_at, c) tensor returned
-        assert desc.shape[0] == R.shape[0] and desc.shape[1] == n_basis
+        assert desc.shape[0] == R.shape[0] and desc.shape[1] == self.n_basis
         return desc
         
 
-    def bp_threebody(self, R:torch.Tensor, r_cut:float=3.0, sigma:float=1.0):
+    def bp_threebody(self, R, r_cut:float=3.0, sigma:float=1.0):
         """
         Returns three-body angular descriptors for all atoms
 
@@ -110,9 +113,11 @@ class BPDescriptor:
                 for k in range(j+1, N):
                     if j==i or k==i:
                         continue
+
                     cos_th = Ri[j].dot(Ri[k])/(ri[j]*ri[k] + 1e-8)
+                    
                     Rk = R - R[k,:]
-                    rjk = torch.linalg.norm(Rj[i,:]-Rk[i,:])
+                    rjk = torch.linalg.norm(Rj[i] - Rk[i])
                     fcjk = self.cutoff_fn(rjk, r_cut)
                     
                     g = torch.exp((-(ri[j])**2-(ri[k])**2-rjk**2)/sigma**2)
@@ -123,40 +128,54 @@ class BPDescriptor:
         desc = torch.stack(desc, dim=0)
         assert desc.shape[0] == R.shape[0] and desc.shape[1] == len(combinations)
         return desc
-            
+        
 
-    def bp_descriptor(self, R, r_cut_ls, sigma_ls, n_basis):
+    def bp_descriptor(self, R):
 
-        if len(r_cut_ls) == 2:
-            r_cut_twobody = r_cut_ls[0]
-            r_cut_threebody = r_cut_ls[1]
+        if len(self.r_cut_ls) == 2:
+            r_cut_twobody = self.r_cut_ls[0]
+            r_cut_threebody = self.r_cut_ls[1]
             if r_cut_twobody < r_cut_threebody:
                 raise ValueError("Two body cutoff radius must be larger than three-body cutoff")
         else:
-            r_cut_twobody = r_cut_ls[0]
-            r_cut_threebody = r_cut_ls[0]
+            r_cut_twobody = self.r_cut_ls[0]
+            r_cut_threebody = self.r_cut_ls[0]
 
-        if len(sigma_ls) == 2:
-            sigma_twobody = sigma_ls[0]
-            sigma_threebody = sigma_ls[1]
+        if len(self.sigma_ls) == 2:
+            sigma_twobody = self.sigma_ls[0]
+            sigma_threebody = self.sigma_ls[1]
         else:
-            sigma_twobody = sigma_ls[0]
-            sigma_threebody = sigma_ls[0]
+            sigma_twobody = self.sigma_ls[0]
+            sigma_threebody = self.sigma_ls[0]
 
-        twobody = self.bp_twobody(R, r_cut_twobody, n_basis, sigma_twobody)
+        twobody = self.bp_twobody(R, r_cut_twobody, sigma_twobody)
         threebody = self.bp_threebody(R, r_cut_threebody, sigma_threebody)
 
         return torch.cat([twobody, threebody], dim=-1) #(N_at, n_basis+len(combinations)) tensor final size
         # return twobody
 
 
-    def bp_descriptor_batch(self, all_R, r_cut_ls, sigma_ls, n_basis):
+    def bp_descriptor_batch(self):
         desc = []
-        for R in all_R:
-            d = self.bp_descriptor(R, r_cut_ls, sigma_ls, n_basis)
+        for R in self.X:
+            d = self.bp_descriptor(R)
             desc.append(d)
 
         return torch.stack(desc) # To batch descriptors, will return (N_at, N_at, 2) tensor
+    
+
+    def get_normalized_descriptors(self):
+
+        train_X = self.X
+       
+        train_X = self.bp_descriptor_batch()
+        train_mean = train_X.mean(dim=(0,1), keepdim=True)
+        train_std  = train_X.std(dim=(0,1), keepdim=True)
+
+        train_X_norm = (train_X - train_mean)/(train_std + 1e-8)
+        # print(train_X_norm.abs().max())
+
+        return train_X_norm
 
 
 def soap_descriptor():

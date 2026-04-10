@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from descriptors import BPDescriptor
 from torch.utils.data import DataLoader
 from models import BPGPModel
 from train import GPTrainer
@@ -30,7 +31,12 @@ test_y = (test_y - train_y_mean)/train_y_std
 print("Finished normalizing targets...\n")
 
 ### Make the 2+3-descriptors
-train_X_norm, val_X_norm, test_X_norm = get_normalized_descriptors((train_X, val_X, test_X), r_cut_ls=[6.5,4], n_basis=6, load=False)
+r_cut_ls = [6.5, 4]
+sigma_ls = [1.0]
+n_basis = 4
+train_X_norm = BPDescriptor(train_X, r_cut_ls, sigma_ls, n_basis).get_normalized_descriptors()
+val_X_norm = BPDescriptor(val_X, r_cut_ls, sigma_ls, n_basis).get_normalized_descriptors()
+test_X_norm = BPDescriptor(test_X, r_cut_ls, sigma_ls, n_basis).get_normalized_descriptors()
 
 print("Finished computing, normalizing descriptors...\n")
 
@@ -55,7 +61,7 @@ optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.0
         {"params": model.kernel.log_sigvar, "lr": 0.05},
         {"params": model.log_noise, "lr": 0.005}])
 loss_fn = model.mll
-epochs = 50
+epochs = 150
 
 print("Starting training...")
 trainer = GPTrainer(model, optimizer)
