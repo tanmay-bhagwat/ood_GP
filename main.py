@@ -50,7 +50,6 @@ train_loader = DataLoader(traindataset, batch_size=len(train_X_norm), shuffle=Fa
 val_loader = DataLoader(valdataset, batch_size=len(val_X_norm), shuffle=False)
 test_loader = DataLoader(testdataset, batch_size=len(test_X_norm), shuffle=False)
 
-
 print("Finished initializing dataloaders...\n")
 
 
@@ -60,8 +59,7 @@ model.set_kernel(kernel)
 optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.05},
         {"params": model.kernel.log_sigvar, "lr": 0.05},
         {"params": model.log_noise, "lr": 0.005}])
-loss_fn = model.mll
-epochs = 150
+epochs = 50
 
 print("Starting training...")
 trainer = GPTrainer(model, optimizer)

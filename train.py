@@ -6,10 +6,9 @@ class GPTrainer:
         self.model = model
         self.optimizer = optimizer        
 
-
     def train_epoch(self, data_loader, val_loader):
         model = self.model
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.95, mode="min", patience=1, threshold=1e-2)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.5, mode="min", patience=1, threshold=1e-2)
 
         model.train()
         
@@ -38,12 +37,11 @@ class GPTrainer:
         
         return train_loss, val_loss
 
-        
     def train(self, epochs, data_loader, val_loader):
 
-        count = 0
+        count_val, count_tn = 0, 0
         delta = 0.01
-        patience = 3
+        patience, tn_limit = 3, 5
         model = self.model.to(device="cpu")
         train_loss_ls, val_loss_ls = [], []
         for epoch in range(epochs):
@@ -59,9 +57,16 @@ class GPTrainer:
                 torch.save(kernel.state_dict(), 'best_kernel.pth')
             
             if val_loss > train_loss + delta:
-                count += 1
-                if count > patience:
+                count_val += 1
+                if count_val == patience:
                     print(f"Val loss exceeded train loss over {patience} epochs, calling early stop...")
+                    break
+
+            if epoch >= 1 and train_loss > train_loss_ls[-2]:
+                count_tn += 1
+                print(count_tn)
+                if count_tn == tn_limit:
+                    print(f"Train loss increased for {tn_limit} epochs, stopping...")
                     break
         
         return train_loss_ls, val_loss_ls
