@@ -1,6 +1,5 @@
 import torch
 
-
 class GPTrainer:
     def __init__(self, model, optimizer, device="cpu") -> None:
         self.model = model
@@ -18,7 +17,7 @@ class GPTrainer:
         for batch_idx, (data, labels) in enumerate(data_loader):
             data, labels = data.to(self.device), labels.to(self.device)
             model.fit(data, labels)
-            train_loss = model.mll()
+            train_loss = model.mll(update_buffers=True)
             print(f"Batch {batch_idx}, batch loss: {train_loss:.3f} ")
 
             self.optimizer.zero_grad()

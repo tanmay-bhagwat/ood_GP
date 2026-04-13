@@ -1,13 +1,11 @@
-import torch
-import ase
+import torch, ase
 import numpy as np
-from descriptors import BPDescriptor, soap_descriptor
 from torch.utils.data import DataLoader
 from models import BPGPModel
 from train import GPTrainer
 from utils import *
 from kernels import BPKernel
-from data_visualize import plot_VarError, plot_PredActualE
+from data_visualize import *
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -67,18 +65,26 @@ print("Finished initializing dataloaders...\n")
 
 
 model = BPGPModel().to(device=device)
-kernel = BPKernel(D=train_X_norm.shape[-1]).to(device=device)
+kernel = BPKernel(D=train_X_norm.shape[-1], learnable=False).to(device=device)
 model.set_kernel(kernel)
-optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.01},
-        {"params": model.kernel.log_sigvar, "lr": 0.01},
-        {"params": model.log_noise, "lr": 0.01}])
-epochs = 100
+optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.05},
+        {"params": model.kernel.log_sigvar, "lr": 0.05},
+        {"params": model.log_noise, "lr": 0.05}])
+epochs = 1
 
 print("Starting training...")
 trainer = GPTrainer(model, optimizer, device=f"{device}")
 train_loss_ls, val_loss_ls = trainer.train(epochs=epochs, data_loader=train_loader, val_loader=val_loader)
 
 
+saved_model_weights = torch.load("best_model.pth")
+print(saved_model_weights)
+model.load_state_dict(saved_model_weights, strict=False)
+kernel.load_state_dict(saved_model_weights, strict=False)
+model.set_kernel(kernel)
+model.fit(train_X_norm, train_y)
+
+print(model.X.shape)
 with torch.no_grad():
 
    model.eval()
@@ -96,5 +102,7 @@ mean = mean.detach().cpu().numpy()
 
 error = np.abs(mean-test_y)
 
+# plot_trainvsval(train_loss_ls, val_loss_ls)
 plot_VarError(error, var)
 plot_PredActualE(mean, test_y, var)
+

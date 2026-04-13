@@ -35,4 +35,8 @@ def plot_PredActualE(mean, test_y, var):
 def plot_trainvsval(train_loss_ls, val_loss_ls):
     plt.figure()
     plt.plot(np.arange(0 ,len(train_loss_ls)), train_loss_ls)
-    plt.plot(np.arange(0 ,len(val_loss_ls)), train_loss_ls)
+    plt.plot(np.arange(0 ,len(val_loss_ls)), val_loss_ls)
+
+    plt.xlabel("iterations")
+    plt.ylabel("loss (mll)")
+    plt.show()

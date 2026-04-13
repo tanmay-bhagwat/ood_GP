@@ -182,7 +182,7 @@ class BPDescriptor:
 
 
 
-class SpeciesACSFDescriptor():
+class SpeciesACSFDescriptor:
 
     def __init__(self, arrays, r_cut_ls, sigma_ls, n_basis):
         self.arrays = arrays
