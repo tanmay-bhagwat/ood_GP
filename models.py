@@ -15,12 +15,13 @@ class BPGPModel(torch.nn.Module):
         self.kernel = kernel
 
     def mll(self):
-        noise = torch.exp(self.log_noise)
+        device = self.X.device
+        noise = torch.exp(self.log_noise.to(device=device))
         K = self.kernel.full_kernel(self.X, self.X)
-        K += noise * torch.eye(len(self.X))
+        K += noise * torch.eye(len(self.X), device=device, dtype=self.X.dtype)
 
         jitter = 1e-4
-        K_new = K + jitter * torch.eye(K.size(-1), device=K.device)
+        K_new = K + jitter * torch.eye(K.size(-1), device=device, dtype=self.X.dtype)
         # eigvals = torch.linalg.eigvalsh(K_s)
         # print("Eigvalues: ", eigvals.min(), eigvals.max())
 
@@ -30,14 +31,12 @@ class BPGPModel(torch.nn.Module):
 
         mll = 0.5 * self.y @ self.alpha.squeeze()
         mll += torch.log(torch.diag(self.L)).sum()
-        mll += 0.5 * len(self.X)*torch.log(torch.tensor(2*torch.pi, device=K.device))
+        mll += 0.5 * len(self.X)*torch.log(torch.tensor(2*torch.pi, device=device, dtype=self.X.dtype))
 
         return mll
 
 
     def predict(self, X_test):
-
-        print(self.X.dtype, X_test.dtype)
         K_s = self.kernel.full_kernel(X_test, self.X)
         K_ss = self.kernel.full_kernel(X_test, X_test)
 

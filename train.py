@@ -2,9 +2,10 @@ import torch
 
 
 class GPTrainer:
-    def __init__(self, model, optimizer) -> None:
+    def __init__(self, model, optimizer, device="cpu") -> None:
         self.model = model
-        self.optimizer = optimizer        
+        self.optimizer = optimizer 
+        self.device = device       
 
     def train_epoch(self, data_loader, val_loader):
         model = self.model
@@ -15,6 +16,7 @@ class GPTrainer:
         # One batch is the whole dataset
         train_loss = 0
         for batch_idx, (data, labels) in enumerate(data_loader):
+            data, labels = data.to(self.device), labels.to(self.device)
             model.fit(data, labels)
             train_loss = model.mll()
             print(f"Batch {batch_idx}, batch loss: {train_loss:.3f} ")
@@ -30,6 +32,7 @@ class GPTrainer:
             val_loss = 0
             with torch.no_grad():
                 for _, (val_data, val_labels) in enumerate(val_loader):
+                    val_data, val_labels = val_data.to(self.device), val_labels.to(self.device)
                     model.fit(val_data, val_labels)
                     val_loss = model.mll()
 
@@ -42,7 +45,8 @@ class GPTrainer:
         count_val, count_tn = 0, 0
         delta = 0.01
         patience, tn_limit = 3, 5
-        model = self.model.to(device="cpu")
+       
+        model = self.model.to(device=self.device)
         train_loss_ls, val_loss_ls = [], []
         for epoch in range(epochs):
             train_loss, val_loss = self.train_epoch(data_loader, val_loader)

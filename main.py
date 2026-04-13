@@ -10,14 +10,18 @@ from kernels import BPKernel
 from data_visualize import plot_VarError, plot_PredActualE
 
 
+device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+print(f"Using device: {device}")
+
+
 ### load the dataset and split into train-val-test
 db = np.load("rmd17_benzene.npz")
-y = torch.tensor(db['energies'])
+y = torch.tensor(db['energies'], device=device, dtype=torch.float64)
 y = y.double()
 
-train_size = 400
-val_size = 40
-test_size = 200
+train_size = 200
+val_size = 20
+test_size = 100
 
 train_pts, val_pts, test_pts = train_val_test(len(y), train_size, val_size, test_size)
 
@@ -39,7 +43,8 @@ test_y = (test_y - train_y_mean)/train_y_std
 print("Finished normalizing targets...\n")
 
 # ### Make the 2+3-descriptors
-train_X_norm, val_X_norm, test_X_norm = get_descriptors([train_X, val_X, test_X], r_cut=6.0, sigma=1.0, desc="soap", n_max=4, l_max=2)
+train_X_norm, val_X_norm, test_X_norm = get_descriptors([train_X, val_X, test_X], 
+                                                        r_cut=6.0, sigma=1.0, desc="soap", n_max=4, l_max=2, device=f"{device}")
 print(train_X_norm.shape)
 train_mean = train_X_norm.mean()
 train_std = train_X_norm.std()
@@ -61,16 +66,16 @@ test_loader = DataLoader(testdataset, batch_size=len(test_X_norm), shuffle=False
 print("Finished initializing dataloaders...\n")
 
 
-model = BPGPModel()
-kernel = BPKernel(D=train_X_norm.shape[-1])
+model = BPGPModel().to(device=device)
+kernel = BPKernel(D=train_X_norm.shape[-1]).to(device=device)
 model.set_kernel(kernel)
-optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.05},
-        {"params": model.kernel.log_sigvar, "lr": 0.05},
-        {"params": model.log_noise, "lr": 0.05}])
-epochs = 50
+optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.01},
+        {"params": model.kernel.log_sigvar, "lr": 0.01},
+        {"params": model.log_noise, "lr": 0.01}])
+epochs = 100
 
 print("Starting training...")
-trainer = GPTrainer(model, optimizer)
+trainer = GPTrainer(model, optimizer, device=f"{device}")
 train_loss_ls, val_loss_ls = trainer.train(epochs=epochs, data_loader=train_loader, val_loader=val_loader)
 
 

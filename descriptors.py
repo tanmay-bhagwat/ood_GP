@@ -63,9 +63,10 @@ class BPDescriptor:
         """
 
         # Behler-Parrinello G2 symm function
+        device = R.device
         r = torch.linalg.norm(R.unsqueeze(0) - R.unsqueeze(1), dim=-1) # (N_at, N_at) tensor of interatomic distances
         fc = self.cutoff_fn(r, r_cut) # Compute cutoff values for all r
-        centers = torch.linspace(0, r_cut, self.n_basis) # Centers of n_basis exp basis functions
+        centers = torch.linspace(0, r_cut, self.n_basis, device=device, dtype=R.dtype) # Centers of n_basis exp basis functions
 
         arr = []
         for c in centers:
@@ -97,6 +98,7 @@ class BPDescriptor:
         """
 
         # Behler-Parrinello G5 symm function
+        device = R.device
         N = R.shape[0]
         desc = []
         la_ls = [-1,1]
@@ -107,7 +109,7 @@ class BPDescriptor:
             Ri = R - R[i,:]
             ri = torch.linalg.norm(Ri, dim=1) # (N_at,) tensor
             fc = self.cutoff_fn(ri, r_cut)
-            arr = torch.zeros(N**2, len(la_ls) * len(zeta_ls))
+            arr = torch.zeros(N**2, len(la_ls) * len(zeta_ls), dtype=R.dtype, device=device)
             
             for j in range(N):
                 Rj = R - R[j,:]
@@ -189,10 +191,10 @@ class SpeciesACSFDescriptor():
         self.n_basis = n_basis
 
 
-def soap_descriptor(X, species_ls, r_cut, sigma, n_max, l_max):
+def soap_descriptor(X, species_ls, r_cut, sigma, n_max, l_max, device):
 
     soap = dscribe.descriptors.SOAP(species=species_ls, r_cut=r_cut, n_max=n_max, l_max=l_max, sigma=sigma, periodic=False)
-    desc = torch.tensor(soap.create(X))
+    desc = torch.tensor(soap.create(X)).to(device).double()
 
     return desc
 

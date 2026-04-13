@@ -22,7 +22,8 @@ class BPKernel(torch.nn.Module):
         self.learnable = learnable
         if learnable:
             self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.07]*self.embed.model[2].out_features))
+            num_features = self.embed.model[2].out_features
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.07]*num_features))
         else:
             self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.07]*D))
         
@@ -42,8 +43,8 @@ class BPKernel(torch.nn.Module):
         lengthscale = torch.exp(self.log_lengthscale)
 
         if self.learnable:
-            d1 = self.embed(d1)
-            d2 = self.embed(d2)
+            d1 = self.embed(d1, device=d1.device)
+            d2 = self.embed(d2, device=d2.device)
 
         dists = d1.unsqueeze(1) - d2.unsqueeze(0)
         dists = sigvar**2 * torch.sum(dists**2/lengthscale**2, dim=-1)
@@ -57,7 +58,7 @@ class BPKernel(torch.nn.Module):
         N1 = X1.shape[0]
         N2 = X2.shape[0]
 
-        K = torch.zeros(N1, N2)
+        K = torch.zeros(N1, N2, device=X1.device, dtype=X1.dtype)
 
         for i in range(N1):
             for j in range(N2):
