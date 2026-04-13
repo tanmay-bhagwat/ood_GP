@@ -35,8 +35,6 @@ class BPGPModel(torch.nn.Module):
             self.L = Lt
             self.alpha = alphat
 
-        print(f" alpha shape: {alphat.shape}, L shape: {Lt.shape}")
-
         mll = 0.5 * self.y @ alphat.squeeze()
         mll += torch.log(torch.diag(Lt)).sum()
         mll += 0.5 * len(self.X)*torch.log(torch.tensor(2*torch.pi, device=device, dtype=self.X.dtype))
@@ -48,7 +46,6 @@ class BPGPModel(torch.nn.Module):
         K_s = self.kernel.full_kernel(X_test, self.X)
         K_ss = self.kernel.full_kernel(X_test, X_test)
 
-        print(f"K_s shape: {K_s.shape}, alpha shape: {self.alpha.shape}, L shape: {self.L.shape}")
         mean = K_s.double() @ self.alpha.double()
         v = torch.linalg.solve_triangular(self.L, K_s.T, upper=False)
 

@@ -70,7 +70,7 @@ model.set_kernel(kernel)
 optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.05},
         {"params": model.kernel.log_sigvar, "lr": 0.05},
         {"params": model.log_noise, "lr": 0.05}])
-epochs = 1
+epochs = 50
 
 print("Starting training...")
 trainer = GPTrainer(model, optimizer, device=f"{device}")

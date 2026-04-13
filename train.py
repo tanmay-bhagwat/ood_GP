@@ -6,7 +6,7 @@ class GPTrainer:
         self.optimizer = optimizer 
         self.device = device       
 
-    def train_epoch(self, data_loader, val_loader):
+    def train_epoch(self, data_loader, val_loader)-> tuple[float, float]:
         model = self.model
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, mode="min", patience=1, threshold=1e-2)
 
@@ -37,7 +37,7 @@ class GPTrainer:
 
                 scheduler.step(val_loss)
         
-        return train_loss, val_loss
+        return train_loss.item(), val_loss.item()
 
     def train(self, epochs, data_loader, val_loader):
 
@@ -49,16 +49,15 @@ class GPTrainer:
         train_loss_ls, val_loss_ls = [], []
         for epoch in range(epochs):
             train_loss, val_loss = self.train_epoch(data_loader, val_loader)
-            train_loss_ls.append(train_loss.item())
-            val_loss_ls.append(val_loss.item())
+            train_loss_ls.append(train_loss)
+            val_loss_ls.append(val_loss)
             print(f"Epoch {epoch}: Train loss = {train_loss:.3f}, val loss = {val_loss:.3f}")
 
             if val_loss <= min(val_loss_ls):
                 print("Saving best model...\n")
-                kernel = self.model.kernel
                 torch.save(model.state_dict(), 'best_model.pth')
-                torch.save(kernel.state_dict(), 'best_kernel.pth')
-            
+                
+
             if val_loss > train_loss + delta:
                 count_val += 1
                 if count_val == patience:
