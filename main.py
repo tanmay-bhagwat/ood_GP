@@ -14,9 +14,9 @@ db = np.load("rmd17_benzene.npz")
 X, y = torch.tensor(db['coords']), torch.tensor(db['energies'])
 X, y = X.double(), y.double()
 
-train_size = 200
-val_size = 20
-test_size = 100
+train_size = 400
+val_size = 40
+test_size = 200
 (train_X, train_y), (val_X, val_y), (test_X, test_y) = train_val_test(X, y, train_size, val_size, test_size)
 
 print("Finished train-val-test splits...\n")
