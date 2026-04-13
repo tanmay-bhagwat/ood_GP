@@ -1,6 +1,7 @@
 import torch
+import ase
 import numpy as np
-from descriptors import BPDescriptor
+from descriptors import BPDescriptor, soap_descriptor
 from torch.utils.data import DataLoader
 from models import BPGPModel
 from train import GPTrainer
@@ -11,13 +12,22 @@ from data_visualize import plot_VarError, plot_PredActualE
 
 ### load the dataset and split into train-val-test
 db = np.load("rmd17_benzene.npz")
-X, y = torch.tensor(db['coords']), torch.tensor(db['energies'])
-X, y = X.double(), y.double()
+y = torch.tensor(db['energies'])
+y = y.double()
 
-train_size = 200
-val_size = 20
-test_size = 100
-(train_X, train_y), (val_X, val_y), (test_X, test_y) = train_val_test(X, y, train_size, val_size, test_size)
+# X = torch.tensor(db['coords]).double()
+
+train_size = 400
+val_size = 40
+test_size = 200
+train_pts, val_pts, test_pts = train_val_test(len(y), train_size, val_size, test_size)
+
+train_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in train_pts]
+train_y = y[train_pts]
+val_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in val_pts]
+val_y = y[val_pts]
+test_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in test_pts]
+test_y = y[test_pts]
 
 print("Finished train-val-test splits...\n")
 
@@ -30,16 +40,16 @@ test_y = (test_y - train_y_mean)/train_y_std
 
 print("Finished normalizing targets...\n")
 
-### Make the 2+3-descriptors
-r_cut_ls = [6.5, 4]
-sigma_ls = [1.0]
-n_basis = 4
-train_X_norm = BPDescriptor(train_X, r_cut_ls, sigma_ls, n_basis).get_normalized_descriptors()
-val_X_norm = BPDescriptor(val_X, r_cut_ls, sigma_ls, n_basis).get_normalized_descriptors()
-test_X_norm = BPDescriptor(test_X, r_cut_ls, sigma_ls, n_basis).get_normalized_descriptors()
+# ### Make the 2+3-descriptors
+train_X_norm, val_X_norm, test_X_norm = get_descriptors([train_X, val_X, test_X], r_cut=6.0, sigma=1.0, desc="soap", n_max=4, l_max=2)
+print(train_X_norm.shape)
+train_mean = train_X_norm.mean()
+train_std = train_X_norm.std()
+train_X_norm = (train_X_norm - train_mean)/train_std
+val_X_norm = (val_X_norm - train_mean)/train_std
+test_X_norm = (test_X_norm - train_mean)/train_std
 
 print("Finished computing, normalizing descriptors...\n")
-
 
 ### Make a dataset and dataloader (this is extra, was not necessary in hindsight)
 traindataset = AtomicEnvDataset(train_X_norm, train_y)
@@ -58,7 +68,7 @@ kernel = BPKernel(D=train_X_norm.shape[-1])
 model.set_kernel(kernel)
 optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 0.05},
         {"params": model.kernel.log_sigvar, "lr": 0.05},
-        {"params": model.log_noise, "lr": 0.005}])
+        {"params": model.log_noise, "lr": 0.05}])
 epochs = 50
 
 print("Starting training...")
