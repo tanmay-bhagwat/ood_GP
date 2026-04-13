@@ -8,7 +8,7 @@ class GPTrainer:
 
     def train_epoch(self, data_loader, val_loader):
         model = self.model
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.5, mode="min", patience=1, threshold=1e-2)
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, mode="min", patience=1, threshold=1e-2)
 
         model.train()
         
@@ -46,8 +46,8 @@ class GPTrainer:
         train_loss_ls, val_loss_ls = [], []
         for epoch in range(epochs):
             train_loss, val_loss = self.train_epoch(data_loader, val_loader)
-            train_loss_ls.append(train_loss)
-            val_loss_ls.append(val_loss)
+            train_loss_ls.append(train_loss.item())
+            val_loss_ls.append(val_loss.item())
             print(f"Epoch {epoch}: Train loss = {train_loss:.3f}, val loss = {val_loss:.3f}")
 
             if val_loss <= min(val_loss_ls):
@@ -62,11 +62,14 @@ class GPTrainer:
                     print(f"Val loss exceeded train loss over {patience} epochs, calling early stop...")
                     break
 
-            if epoch >= 1 and train_loss > train_loss_ls[-2]:
-                count_tn += 1
-                print(count_tn)
-                if count_tn == tn_limit:
-                    print(f"Train loss increased for {tn_limit} epochs, stopping...")
-                    break
+            if epoch >= 1:
+                if train_loss > train_loss_ls[-2]:
+                    count_tn += 1
+                    print("======= WARNING: Training loss increased! =======")
+                    if count_tn == tn_limit:
+                        print(f"Train loss increased for {tn_limit} consecutive epochs, stopping...")
+                        break
+                else:
+                    count_tn = 0 
         
         return train_loss_ls, val_loss_ls

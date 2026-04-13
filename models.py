@@ -36,6 +36,8 @@ class BPGPModel(torch.nn.Module):
 
 
     def predict(self, X_test):
+
+        print(self.X.dtype, X_test.dtype)
         K_s = self.kernel.full_kernel(X_test, self.X)
         K_ss = self.kernel.full_kernel(X_test, X_test)
 

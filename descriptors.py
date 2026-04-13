@@ -1,35 +1,36 @@
+import dscribe.descriptors
 import torch
+import dscribe
 
+### Example on using unsqueeze() to get pairwise distances
+# def pairwise_distances(R:torch.Tensor):
+#     """
+#     Parameters
+#     ---
+#     all_R: ndarray
+#         Positions of all atoms in config (N,atoms,3)
 
-def pairwise_distances(R:torch.Tensor):
-    """
-    Parameters
-    ---
-    all_R: ndarray
-        Positions of all atoms in config (N,atoms,3)
-
-    Returns
-    ---
-    distance_mat: ndarray
-        Pairwise distances (N,c)
-    """
-    # First unsqueeze at dim=1 so that we get (N,1,atoms,3), so that we have N batch size of all positions within a molec (atoms,3)
-    # Then unsqueeze at dim=2 so that we get (N,atoms,1,3) N batch size of individual position row vectors (1,3) ->
-    # This should result in (N,atoms,atoms,3) after broadcasting
-    # Then apply norm on the last dim
-    # Select unique distances using upper triangular indices only
-    # Flatten to c columns
+#     Returns
+#     ---
+#     distance_mat: ndarray
+#         Pairwise distances (N,c)
+#     """
+#     # First unsqueeze at dim=1 so that we get (N,1,atoms,3), so that we have N batch size of all positions within a molec (atoms,3)
+#     # Then unsqueeze at dim=2 so that we get (N,atoms,1,3) N batch size of individual position row vectors (1,3) ->
+#     # This should result in (N,atoms,atoms,3) after broadcasting
+#     # Then apply norm on the last dim
+#     # Select unique distances using upper triangular indices only
+#     # Flatten to c columns
     
-    distance_mat = torch.linalg.norm(torch.unsqueeze(R, 1) - torch.unsqueeze(R, 2), dim=-1)
-    idxs = torch.triu_indices(row=distance_mat.shape[0], col=distance_mat.shape[1], offset=1) # Triu_indices to select the unique distances
+#     distance_mat = torch.linalg.norm(torch.unsqueeze(R, 1) - torch.unsqueeze(R, 2), dim=-1)
+#     idxs = torch.triu_indices(row=distance_mat.shape[0], col=distance_mat.shape[1], offset=1) # Triu_indices to select the unique distances
     
-    return distance_mat[:, idxs[0], idxs[1]]
-
+#     return distance_mat[:, idxs[0], idxs[1]]
 
 
 class BPDescriptor:
 
-    def __init__(self, X, r_cut_ls, sigma_ls, n_basis) -> None:
+    def __init__(self, X, r_cut_ls, sigma_ls, n_basis):
         self.X = X
         self.r_cut_ls = r_cut_ls
         self.sigma_ls = sigma_ls
@@ -178,7 +179,20 @@ class BPDescriptor:
         return train_X_norm
 
 
-def soap_descriptor():
-    pass
 
+class SpeciesACSFDescriptor():
+
+    def __init__(self, arrays, r_cut_ls, sigma_ls, n_basis):
+        self.arrays = arrays
+        self.r_cut_ls = r_cut_ls # Must be array of 2-body species r_cut and 3-body species r_cut
+        self.sigma_ls = sigma_ls
+        self.n_basis = n_basis
+
+
+def soap_descriptor(X, species_ls, r_cut, sigma, n_max, l_max):
+
+    soap = dscribe.descriptors.SOAP(species=species_ls, r_cut=r_cut, n_max=n_max, l_max=l_max, sigma=sigma, periodic=False)
+    desc = torch.tensor(soap.create(X))
+
+    return desc
 

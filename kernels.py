@@ -16,11 +16,15 @@ class LearnableEmbedding(torch.nn.Module):
 
 class BPKernel(torch.nn.Module):
 
-    def __init__(self, D):
+    def __init__(self, D, learnable=False):
         super().__init__()
         self.log_sigvar = torch.nn.Parameter(torch.tensor(0.01))
-        self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
-        self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.07]*self.embed.model[2].out_features))
+        self.learnable = learnable
+        if learnable:
+            self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.07]*self.embed.model[2].out_features))
+        else:
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.07]*D))
         
 
     def atomic_kernel(self, d1, d2):
@@ -37,8 +41,9 @@ class BPKernel(torch.nn.Module):
         sigvar = torch.exp(self.log_sigvar)
         lengthscale = torch.exp(self.log_lengthscale)
 
-        d1 = self.embed(d1)
-        d2 = self.embed(d2)
+        if self.learnable:
+            d1 = self.embed(d1)
+            d2 = self.embed(d2)
 
         dists = d1.unsqueeze(1) - d2.unsqueeze(0)
         dists = sigvar**2 * torch.sum(dists**2/lengthscale**2, dim=-1)
@@ -56,7 +61,7 @@ class BPKernel(torch.nn.Module):
 
         for i in range(N1):
             for j in range(N2):
-                k_atoms = self.atomic_kernel(X1[i,:], X2[j, :])
+                k_atoms = self.atomic_kernel(X1[i,:], X2[j,:])
                 K[i, j] = k_atoms.sum()
 
         return K
