@@ -23,9 +23,9 @@ class BPKernel(torch.nn.Module):
         if learnable:
             self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
             num_features = self.embed.model[2].out_features
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor(0.0))
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor(0.5))
         else:
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.0]*D))
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.5]*D))
         
 
     def atomic_kernel(self, d1, d2):

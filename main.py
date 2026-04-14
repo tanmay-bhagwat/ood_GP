@@ -51,11 +51,10 @@ train_X_norm = (train_X_norm - train_mean)/train_std
 val_X_norm = (val_X_norm - train_mean)/train_std
 test_X_norm = (test_X_norm - train_mean)/train_std
 
-
-save_tnsr_dct = {"train_X_norm": train_X_norm, "train_y": train_y, "val_X_norm": val_X_norm, "val_y": val_y, "test_X_norm":test_X_norm, "test_y": test_y}
-torch.save(save_tnsr_dct, "saved_features_labels.pt")
-print("Shape of train_X_norm:", train_X_norm.shape)
-print("Finished computing, normalizing descriptors...\n")
+# save_tnsr_dct = {"train_X_norm": train_X_norm, "train_y": train_y, "val_X_norm": val_X_norm, "val_y": val_y, "test_X_norm":test_X_norm, "test_y": test_y}
+# torch.save(save_tnsr_dct, "saved_features_labels.pt")
+# print("Shape of train_X_norm:", train_X_norm.shape)
+# print("Finished computing, normalizing descriptors...\n")
 
 ### Make a dataset and dataloader (this is extra, was not necessary in hindsight)
 traindataset = AtomicEnvDataset(train_X_norm, train_y)
@@ -72,9 +71,10 @@ print("Finished initializing dataloaders...\n")
 model = BPGPModel().to(device=device, dtype=torch.float64)
 kernel = BPKernel(D=train_X_norm.shape[-1], learnable=True).to(device=device, dtype=torch.float64)
 model.set_kernel(kernel)
+model.fit(train_X_norm, train_y)
 optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 2e-3},
         {"params": model.kernel.log_sigvar, "lr": 2e-3},
-        {"params": model.log_noise, "lr": 2e-3},{"params": model.kernel.embed.parameters(), "lr":1e-3, "weight_decay":1e-3}])
+        {"params": model.log_noise, "lr": 2e-3},{"params": model.kernel.embed.parameters(), "lr":1e-3, "weight_decay":3e-4}])
 epochs = 150
 
 print("Starting training...")
@@ -99,7 +99,7 @@ mean = mean.detach().cpu().numpy()
 error = np.abs(mean-test_y)
 print("MAE: ",np.mean(error))
 print(np.linalg.norm(error/var))
-plot_trainvsval(train_loss_ls, val_loss_ls)
+# plot_trainvsval(train_loss_ls, val_loss_ls)
 plot_VarError(error, var)
 plot_PredActualE(mean, test_y, var)
 print("Final log_noise:", model.state_dict()['log_noise'])
