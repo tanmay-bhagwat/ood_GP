@@ -1,12 +1,12 @@
 import torch
 
 class GPTrainer:
-    def __init__(self, model, optimizer, device="cpu") -> None:
+    def __init__(self, model, optimizer, device="cpu"):
         self.model = model
         self.optimizer = optimizer 
         self.device = device       
 
-    def train_epoch(self, data_loader, val_loader)-> tuple[float, float]:
+    def train_epoch(self, data_loader, val_loader):
         model = self.model
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, mode="min", patience=1, threshold=1e-2)
 
@@ -17,7 +17,7 @@ class GPTrainer:
         for batch_idx, (data, labels) in enumerate(data_loader):
             data, labels = data.to(self.device), labels.to(self.device)
             model.fit(data, labels)
-            train_loss = model.mll(update_buffers=True)
+            train_loss = model.mll()
             # print(f"Batch {batch_idx}, batch loss: {train_loss:.3f} ")
 
             self.optimizer.zero_grad()
@@ -35,7 +35,7 @@ class GPTrainer:
                 for _, (val_data, val_labels) in enumerate(val_loader):
                     val_data, val_labels = val_data.to(self.device), val_labels.to(self.device)
                     model.fit(val_data, val_labels)
-                    val_loss = model.mll(update_buffers=False)
+                    val_loss = model.mll()
 
                 scheduler.step(val_loss)
         
