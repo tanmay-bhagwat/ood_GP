@@ -191,7 +191,7 @@ class SpeciesACSFDescriptor:
         self.n_basis = n_basis
 
 
-def soap_descriptor(X, species_ls, r_cut, sigma, n_max, l_max, device):
+def soap_descriptor(X, species_ls, r_cut, sigma, n_max, l_max, device="cpu"):
 
     soap = dscribe.descriptors.SOAP(species=species_ls, r_cut=r_cut, n_max=n_max, l_max=l_max, sigma=sigma, periodic=False)
     desc = torch.tensor(soap.create(X)).to(device).double()

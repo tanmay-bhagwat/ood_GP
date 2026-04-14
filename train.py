@@ -18,22 +18,24 @@ class GPTrainer:
             data, labels = data.to(self.device), labels.to(self.device)
             model.fit(data, labels)
             train_loss = model.mll(update_buffers=True)
-            print(f"Batch {batch_idx}, batch loss: {train_loss:.3f} ")
+            # print(f"Batch {batch_idx}, batch loss: {train_loss:.3f} ")
 
             self.optimizer.zero_grad()
             train_loss.backward()
             self.optimizer.step()
-        print(f"Total loss: {train_loss:.3f}")
+            #model.kernel.log_lengthscale.data.clamp_(min=-1.0, max=1.0)
+            
+        # print(f"Total loss: {train_loss:.3f}")
 
         if val_loader is not None:
             model.eval()
-            
+
             val_loss = 0
             with torch.no_grad():
                 for _, (val_data, val_labels) in enumerate(val_loader):
                     val_data, val_labels = val_data.to(self.device), val_labels.to(self.device)
                     model.fit(val_data, val_labels)
-                    val_loss = model.mll()
+                    val_loss = model.mll(update_buffers=False)
 
                 scheduler.step(val_loss)
         
@@ -55,8 +57,8 @@ class GPTrainer:
 
             if val_loss <= min(val_loss_ls):
                 print("Saving best model...\n")
+                # print(model.alpha.shape, model.L.shape)
                 torch.save(model.state_dict(), 'best_model.pth')
-                
 
             if val_loss > train_loss + delta:
                 count_val += 1
@@ -65,11 +67,11 @@ class GPTrainer:
                     break
 
             if epoch >= 1:
-                if train_loss > train_loss_ls[-2]:
+                if val_loss > val_loss_ls[-2]:
                     count_tn += 1
-                    print("======= WARNING: Training loss increased! =======")
+                    print("======= Validation loss increased =======")
                     if count_tn == tn_limit:
-                        print(f"Train loss increased for {tn_limit} consecutive epochs, stopping...")
+                        print(f"Validation loss increased for {tn_limit} consecutive epochs, stopping...")
                         break
                 else:
                     count_tn = 0 
