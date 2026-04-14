@@ -18,6 +18,7 @@ def plot_VarError(error, var):
     plt.ylabel("|Energy error|")
     plt.grid()
     plt.title("GP uncertainty vs error (log-log)")
+    plt.savefig(f"imgs/GP_varvserror.pdf", format="pdf")
     plt.show()
 
 
@@ -46,5 +47,5 @@ def plot_trainvsval(train_loss_ls, val_loss_ls):
 
     plt.xlabel("iterations")
     plt.ylabel("loss (mll)")
-    plt.savefig(f"imgs/train-val_{len(train_loss_ls)}_{len(val_loss_ls)}.pdf", format="pdf")
+    plt.savefig(f"imgs/train-val.pdf", format="pdf")
     plt.show()

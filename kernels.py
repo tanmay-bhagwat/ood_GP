@@ -18,12 +18,12 @@ class BPKernel(torch.nn.Module):
 
     def __init__(self, D, learnable=False):
         super().__init__()
-        self.log_sigvar = torch.nn.Parameter(torch.tensor(4.5))
+        self.log_sigvar = torch.nn.Parameter(torch.tensor(3.5))
         self.learnable = learnable
         if learnable:
             self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
             num_features = self.embed.model[2].out_features
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor(0.5))
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor(1.5))
         else:
             self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.5]*D))
         
@@ -57,6 +57,7 @@ class BPKernel(torch.nn.Module):
 
         return sigvar**2 * torch.exp(-0.5 * dists)
     
+
     def full_kernel(self, X1, X2):
 
         N1 = X1.shape[0]
@@ -82,11 +83,11 @@ class BPKernel(torch.nn.Module):
                 
                 # Compute K block-wise, lower simultaneous computations
                 # Get (block_size, block_size) matrices out
-                K[i:end_i, j:end_j] = self.sub_kernel(X1[i:end_i, :, :], X2[j:end_j, :, :])
+                K[i:end_i, j:end_j] = self.sub_kernel_fullvectorized(X1[i:end_i, :, :], X2[j:end_j, :, :])
                 
         return K
     
-    def sub_kernel(self, d1, d2):
+    def sub_kernel_fullvectorized(self, d1, d2):
 
         # Embed to lower dim = 32 if training set >= 300
         if self.learnable:
@@ -99,4 +100,20 @@ class BPKernel(torch.nn.Module):
         dists = d1.unsqueeze(1).unsqueeze(3) - d2.unsqueeze(0).unsqueeze(2)
         return (sigvar**2) * (torch.exp(-0.5*torch.sum(dists**2/lengthscale**2, dim=-1))).sum(dim=(2,3))
     
+
+    def sub_kernel_partialvectorized(self, d1, d2):
+
+
+        if self.learnable:
+            self.embed = self.embed.to(device=d1.device, dtype=d1.dtype)
+            d1 = self.embed(d1)
+            d2 = self.embed(d2)
+
+        lengthscale = torch.exp(self.log_lengthscale)
+        sigvar = torch.exp(self.log_sigvar)
+        ls = []
+        for i in range(d1.shape[0]):
+            dist_i = d1[i].unsqueeze(0).unsqueeze(2) - d2.unsqueeze(1)
+            ls.append(torch.sum(sigvar**2 * torch.exp(torch.sum(dist_i**2/(lengthscale**2 + 1e-8), dim=-1)), dim=(-1,-2)))
         
+        return ls
