@@ -1,6 +1,7 @@
 import dscribe.descriptors
-import torch
-import dscribe
+import torch, ase
+import numpy as np
+from utils import *
 
 ### Example on using unsqueeze() to get pairwise distances
 # def pairwise_distances(R:torch.Tensor):
@@ -28,20 +29,58 @@ import dscribe
 #     return distance_mat[:, idxs[0], idxs[1]]
 
 
-class BPDescriptor:
+class AtomicDescriptor:
 
-    def __init__(self, X, r_cut_ls, sigma_ls, n_basis):
+    def __init__(self, filepath="", X=None, y=None, descriptor_type='soap', **kwargs):
         self.X = X
-        self.r_cut_ls = r_cut_ls
-        self.sigma_ls = sigma_ls
-        self.n_basis = n_basis
+        self.y = y
+        self.descriptor_type = descriptor_type.lower()
+        self.params = kwargs
+        self.device = kwargs.get('device', "cpu")
+        self.dtype = kwargs.get('dtype', torch.float64)
+
+        self.train_size = kwargs.get('train_size', 400)
+        self.val_size = kwargs.get('train_size', 80)
+        self.test_size = kwargs.get('train_size', 400)
+
+        db = np.load(filepath)
+        y = torch.tensor(db['energies'], device=self.device, dtype=self.dtype)
+        train_pts, val_pts, test_pts = train_val_test(len(y), self.train_size, self.val_size, self.test_size)
+
+        if self.descriptor_type == 'soap':
+            
+            self.train_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in train_pts]
+            self.train_y = y[train_pts]
+            self.val_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in val_pts]
+            self.val_y = y[val_pts]
+            self.test_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in test_pts]
+            self.test_y = y[test_pts]
+            self.r_cut = kwargs.get('r_cut', 6.0)
+            self.sigma = kwargs.get('sigma', 1.0)
+            self.species_ls = kwargs.get('species_ls')
+            self.n_max = kwargs.get('n_max', 12)
+            self.l_max = kwargs.get('l_max', 8)
+
+        elif self.descriptor_type == "bp":
+            X = db['coords']
+            self.train_X = db['coords'][train_pts, : ,:]
+            self.train_y = y[train_pts]
+            self.val_X = db['coords'][val_pts, : ,:]
+            self.val_y = y[val_pts]
+            self.test_X = db['coords'][test_pts, : ,:]
+            self.test_y = y[test_pts]
+
+        ### Default BP descriptor hyperparams if not given
+        self.r_cut_ls = kwargs.get('r_cut_ls', [6.0, 3.5])
+        self.sigma_ls = kwargs.get('sigma_ls', [1.0])
+        self.n_basis = kwargs.get('n_basis', 4)
 
 
     def cutoff_fn(self, r, r_cut):
         return 0.5 * (torch.cos(torch.pi*r/r_cut)+1) * (r<r_cut)
 
 
-    def bp_twobody(self, R, r_cut:float=5.0, sigma:float=1.0):
+    def _bp_twobody(self, R, r_cut:float=5.0, sigma:float=1.0):
         """
         Returns radial symmetry descriptors for all atoms
 
@@ -78,7 +117,7 @@ class BPDescriptor:
         return desc
         
 
-    def bp_threebody(self, R, r_cut:float=3.0, sigma:float=1.0):
+    def _bp_threebody(self, R, r_cut:float=3.0, sigma:float=1.0):
         """
         Returns three-body angular descriptors for all atoms
 
@@ -133,7 +172,7 @@ class BPDescriptor:
         return desc
         
 
-    def bp_descriptor(self, R):
+    def _bp_descriptor(self, R):
 
         if len(self.r_cut_ls) == 2:
             r_cut_twobody = self.r_cut_ls[0]
@@ -151,50 +190,71 @@ class BPDescriptor:
             sigma_twobody = self.sigma_ls[0]
             sigma_threebody = self.sigma_ls[0]
 
-        twobody = self.bp_twobody(R, r_cut_twobody, sigma_twobody)
-        threebody = self.bp_threebody(R, r_cut_threebody, sigma_threebody)
+        twobody = self._bp_twobody(R, r_cut_twobody, sigma_twobody)
+        threebody = self._bp_threebody(R, r_cut_threebody, sigma_threebody)
 
         return torch.cat([twobody, threebody], dim=-1) #(N_at, n_basis+len(combinations)) tensor final size
-        # return twobody
 
 
-    def bp_descriptor_batch(self):
-        desc = []
-        for R in self.X:
-            d = self.bp_descriptor(R)
-            desc.append(d)
+    def _get_soap_descriptors(self, X, species_ls, r_cut=6.0, sigma=1.0, n_max=12, l_max=8, device="cpu"):
 
-        return torch.stack(desc) # To batch descriptors, will return (N_at, N_at, 2) tensor
-    
+            soap = dscribe.descriptors.SOAP(species=species_ls, n_max=n_max, l_max=l_max, 
+                                            r_cut=r_cut, sigma=sigma, periodic=False)
+            desc = torch.tensor(soap.create(X))
 
-    def get_normalized_descriptors(self):
-
-        train_X = self.X
-       
-        train_X = self.bp_descriptor_batch()
-        train_mean = train_X.mean(dim=(0,1), keepdim=True)
-        train_std  = train_X.std(dim=(0,1), keepdim=True)
-
-        train_X_norm = (train_X - train_mean)/(train_std + 1e-8)
-        # print(train_X_norm.abs().max())
-
-        return train_X_norm
+            return desc
 
 
+    def get_features(self, normalize=True):
 
-class SpeciesACSFDescriptor:
+        if self.descriptor_type == 'soap':
+            train_X = self._get_soap_descriptors(self.train_X, self.species_ls, n_max=self.n_max, l_max=self.l_max,
+                                                    r_cut=self.r_cut, sigma=self.sigma)
+            val_X = self._get_soap_descriptors(self.val_X, self.species_ls, n_max=self.n_max, l_max=self.l_max,
+                                                    r_cut=self.r_cut, sigma=self.sigma)
+            test_X = self._get_soap_descriptors(self.test_X, self.species_ls, n_max=self.n_max, l_max=self.l_max,
+                                                    r_cut=self.r_cut, sigma=self.sigma)
 
-    def __init__(self, arrays, r_cut_ls, sigma_ls, n_basis):
-        self.arrays = arrays
-        self.r_cut_ls = r_cut_ls # Must be array of 2-body species r_cut and 3-body species r_cut
-        self.sigma_ls = sigma_ls
-        self.n_basis = n_basis
+        elif self.descriptor_type == 'bp':
+            desc1 = []
+            for R in self.train_X:
+                d = self._bp_descriptor(R)
+                desc1.append(d)
+            train_X = torch.stack(desc1) # To batch descriptors, will return (N_at, N_at, 2) tensor
 
+            desc2 = []
+            for R in self.val_X:
+                d = self._bp_descriptor(R)
+                desc2.append(d)
+            val_X = torch.stack(desc2) # To batch descriptors, will return (N_at, N_at, 2) tensor
 
-def soap_descriptor(X, species_ls, r_cut, sigma, n_max, l_max, device):
+            desc3 = []
+            for R in self.test_X:
+                d = self._bp_descriptor(R)
+                desc3.append(d)
+            test_X = torch.stack(desc3) # To batch descriptors, will return (N_at, N_at, 2) tensor
 
-    soap = dscribe.descriptors.SOAP(species=species_ls, r_cut=r_cut, n_max=n_max, l_max=l_max, sigma=sigma, periodic=False)
-    desc = torch.tensor(soap.create(X)).to(device).double()
+        
+        if normalize:
+            train_mean = train_X.mean(dim=(0,1), keepdim=True)
+            train_std  = train_X.std(dim=(0,1), keepdim=True)
 
-    return desc
+            train_X = (train_X - train_mean)/(train_std + 1e-8)
+            val_X = (val_X - train_mean)/(train_std + 1e-8)
+            test_X = (test_X - train_mean)/(train_std + 1e-8)
+            # print(train_X_norm.abs().max())
 
+        return train_X, val_X, test_X
+        
+
+    def get_labels(self, normalize=True):
+
+        if normalize:
+            train_mean = self.train_y.mean()
+            train_std = self.train_y.std()
+
+            train_y = (self.train_y - train_mean)/train_std
+            val_y = (self.val_y - train_mean)/train_std
+            test_y = (self.test_y - train_mean)/train_std
+
+        return train_y, val_y, test_y
