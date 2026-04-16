@@ -3,7 +3,7 @@ import torch
 
 class BPGPModel(torch.nn.Module):
 
-    def __init__(self, log_noise=1.0) -> None:
+    def __init__(self, log_noise=-5.2) -> None:
         super().__init__()
         self.log_noise = torch.nn.Parameter(torch.tensor(log_noise))
     

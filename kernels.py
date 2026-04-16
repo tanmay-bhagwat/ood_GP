@@ -18,12 +18,12 @@ class BPKernel(torch.nn.Module):
 
     def __init__(self, D, learnable=False):
         super().__init__()
-        self.log_sigvar = torch.nn.Parameter(torch.tensor(3.5))
+        self.log_sigvar = torch.nn.Parameter(torch.tensor(-1.5))
         self.learnable = learnable
         if learnable:
             self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
             num_features = self.embed.model[2].out_features
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor(1.5))
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor(0.95))
         else:
             self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.5]*D))
         

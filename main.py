@@ -14,12 +14,15 @@ print(f"Using device: {device}")
 ### load the dataset and split into train-val-test
 train_size = 400
 val_size = 80
-test_size = 200
-make_new = False
+test_size = 400
+make_new = True
+reload_states = False
+
 if make_new:
         print("Making descriptors from scratch...")
         ad = AtomicDescriptor(filepath="rmd17_benzene.npz", train_size=train_size, val_size=val_size, test_size=test_size,
-                        descriptor_type="soap", species_ls = ["C","H"], r_cut=6.0, sigma=1.0, n_max=12, l_max=8)
+                        descriptor_type="soap", species_ls = ["C","H"], r_cut=6.0, sigma=0.5, n_max=12, l_max=8, device=device,
+                        sample_strategy="random")
         train_X_norm, val_X_norm, test_X_norm = ad.get_features()
         train_y, val_y, test_y = ad.get_labels()
 
@@ -46,15 +49,11 @@ print("Finished initializing dataloaders...\n")
 test_X_norm = test_X_norm.to(device=device, dtype=torch.float64)
 test_y = test_y.to(device=device, dtype=torch.float64)
 
+
 model = BPGPModel(log_noise=-0.5).to(device=device, dtype=torch.float64)
 kernel = BPKernel(D=train_X_norm.shape[-1], learnable=True).to(device=device, dtype=torch.float64)
 model.set_kernel(kernel)
-
 model.fit(train_X_norm, train_y)
-
-print(torch.equal(model.log_noise, model.state_dict()['log_noise']))
-print(torch.equal(model.kernel.log_sigvar, model.state_dict()['kernel.log_sigvar']))
-print(torch.equal(model.kernel.log_lengthscale, model.state_dict()['kernel.log_lengthscale']))
 
 optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 2e-3},
         {"params": model.kernel.log_sigvar, "lr": 2e-3},
@@ -63,21 +62,35 @@ optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 2e-
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, mode="min", patience=15)
 epochs = 600
 
+if reload_states:
+        print("Reloading model states from checkpoint...")
+        checkpoint = torch.load("best_checkpoint.pth")
+        model.load_state_dict(checkpoint["model_state_dict"])
+        optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+        scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+        
+        print(torch.equal(model.log_noise, checkpoint["model_state_dict"]['log_noise']))
+        print(torch.equal(model.kernel.log_sigvar, checkpoint["model_state_dict"]['kernel.log_sigvar']))
+        print(torch.equal(model.kernel.log_lengthscale, checkpoint["model_state_dict"]['kernel.log_lengthscale']))
 
-checkpoint = torch.load("best_checkpoint.pth")
-model.load_state_dict(checkpoint["model_state_dict"])
-optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+print(torch.equal(model.log_noise, model.state_dict()['log_noise']))
+print(torch.equal(model.kernel.log_sigvar, model.state_dict()['kernel.log_sigvar']))
+print(torch.equal(model.kernel.log_lengthscale, model.state_dict()['kernel.log_lengthscale']))
 
 
 print("Starting training...")
 trainer = GPTrainer(model, optimizer, scheduler, device=f"{device}")
-train_loss_ls, val_loss_ls = trainer.train(epochs=epochs, data_loader=train_loader, val_loader=val_loader)
-
+train_loss_ls, val_loss_ls = trainer.train(epochs=epochs, data_loader=train_loader, val_loader=val_loader, reload_states=reload_states)
 
 with torch.no_grad():
 
    model.eval()
+   print("Load best model to evaluate...")
+   checkpoint = torch.load("best_checkpoint.pth")
+   model.load_state_dict(checkpoint["model_state_dict"])
+#    model.log_noise = torch.nn.Parameter(torch.tensor(-6), requires_grad=False)
+#    model.kernel.log_sigvar = torch.nn.Parameter(torch.tensor(2.0), requires_grad=False)
+#    model.kernel.log_lengthscale = torch.nn.Parameter(torch.tensor(0.95), requires_grad=False)
    mean, var = model.predict(test_X_norm)
    print("mean shape:", mean.shape)
    print("var min:", var.min())
@@ -97,9 +110,9 @@ var = var.detach().cpu().numpy()
 test_y = test_y.detach().cpu().numpy()
 mean = mean.detach().cpu().numpy()
 
-plot_trainvsval(train_loss_ls, val_loss_ls)
-plot_VarError(error, var)
+# plot_trainvsval(train_loss_ls, val_loss_ls)
+plot_VarError(error, var, torch.exp(model.log_noise).detach().cpu().numpy())
 plot_PredActualE(mean, test_y, var)
-print("Final log_noise:", model.log_noise.cpu())
-print("Final log_sigvar:", kernel.log_sigvar.cpu())
-print("Final log_lengthscale:", kernel.log_lengthscale.cpu())
+print("Final log_noise:", model.log_noise.item())
+print("Final log_sigvar:", kernel.log_sigvar.item())
+print("Final log_lengthscale:", kernel.log_lengthscale.item())
