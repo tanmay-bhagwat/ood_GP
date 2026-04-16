@@ -38,6 +38,7 @@ class AtomicDescriptor:
         self.params = kwargs
         self.device = kwargs.get('device', "cpu")
         self.dtype = kwargs.get('dtype', torch.float64)
+        self.sample_strategy = kwargs.get('sample_strategy', 'random')
 
         self.train_size = kwargs.get('train_size', 400)
         self.val_size = kwargs.get('train_size', 80)
@@ -45,7 +46,9 @@ class AtomicDescriptor:
 
         db = np.load(filepath)
         y = torch.tensor(db['energies'], device=self.device, dtype=self.dtype)
-        train_pts, val_pts, test_pts = train_val_test(len(y), self.train_size, self.val_size, self.test_size)
+        norm_y = (y - y.mean())/y.std()
+
+        train_pts, val_pts, test_pts = train_val_test(norm_y, self.train_size, self.val_size, self.test_size, strategy=self.sample_strategy)
 
         if self.descriptor_type == 'soap':
             
@@ -70,10 +73,10 @@ class AtomicDescriptor:
             self.test_X = db['coords'][test_pts, : ,:]
             self.test_y = y[test_pts]
 
-        ### Default BP descriptor hyperparams if not given
-        self.r_cut_ls = kwargs.get('r_cut_ls', [6.0, 3.5])
-        self.sigma_ls = kwargs.get('sigma_ls', [1.0])
-        self.n_basis = kwargs.get('n_basis', 4)
+            ### Default BP descriptor hyperparams if not given
+            self.r_cut_ls = kwargs.get('r_cut_ls', [6.0, 3.5])
+            self.sigma_ls = kwargs.get('sigma_ls', [1.0])
+            self.n_basis = kwargs.get('n_basis', 4)
 
 
     def cutoff_fn(self, r, r_cut):
@@ -244,7 +247,7 @@ class AtomicDescriptor:
             test_X = (test_X - train_mean)/(train_std + 1e-8)
             # print(train_X_norm.abs().max())
 
-        return train_X, val_X, test_X
+        return train_X.to(self.device), val_X.to(self.device), test_X.to(self.device)
         
 
     def get_labels(self, normalize=True):
@@ -253,8 +256,8 @@ class AtomicDescriptor:
             train_mean = self.train_y.mean()
             train_std = self.train_y.std()
 
-            train_y = (self.train_y - train_mean)/train_std
-            val_y = (self.val_y - train_mean)/train_std
-            test_y = (self.test_y - train_mean)/train_std
+            train_y = (self.train_y - train_mean)/(1e-8 + train_std)
+            val_y = (self.val_y - train_mean)/(1e-8 + train_std)
+            test_y = (self.test_y - train_mean)/(1e-8 + train_std)
 
-        return train_y, val_y, test_y
+        return train_y.to(self.device), val_y.to(self.device), test_y.to(self.device)
