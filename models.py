@@ -1,9 +1,9 @@
 import torch
 
 
-class BPGPModel(torch.nn.Module):
+class GPModel(torch.nn.Module):
 
-    def __init__(self, log_noise=-5.2) -> None:
+    def __init__(self, log_noise=-2.0) -> None:
         super().__init__()
         self.log_noise = torch.nn.Parameter(torch.tensor(log_noise))
     
@@ -14,12 +14,13 @@ class BPGPModel(torch.nn.Module):
     def set_kernel(self, kernel):
         self.kernel = kernel
 
-    def mll(self):
+    def nll(self):
         device = self.X.device
         noise = torch.exp(self.log_noise.to(device=device, dtype=torch.float64))
         K = self.kernel.full_kernel_block(self.X, self.X)
         K += noise * torch.eye(len(self.X), device=device, dtype=self.X.dtype)
 
+        # For numerical stability
         eps = 1e-6
         K += eps * torch.eye(K.size(-1), device=device, dtype=self.X.dtype)
         # eigvals = torch.linalg.eigvalsh(K_s)
@@ -42,7 +43,7 @@ class BPGPModel(torch.nn.Module):
         K_ss = self.kernel.full_kernel_block(X_test, X_test)
 
         if not self.training:
-           _ = self.mll()
+           _ = self.nll()
         mean = K_s.double() @ self.alpha.double()
         v = torch.linalg.solve_triangular(self.L, K_s.T, upper=False)
 

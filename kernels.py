@@ -14,19 +14,25 @@ class LearnableEmbedding(torch.nn.Module):
         return self.model(x)
     
 
-class BPKernel(torch.nn.Module):
+class StructKernel(torch.nn.Module):
 
-    def __init__(self, D, learnable=False):
+    def __init__(self, D, learnable=False, separate_ll=False):
         super().__init__()
-        self.log_sigvar = torch.nn.Parameter(torch.tensor(-1.5))
+        self.log_sigvar = torch.nn.Parameter(torch.tensor(1.0))
         self.learnable = learnable
         if learnable:
             self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
             num_features = self.embed.model[2].out_features
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor(0.95))
-        else:
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor([0.5]*D))
         
+            if separate_ll:
+                self.log_lengthscale = torch.nn.Parameter(torch.tensor([1.5]*num_features))
+            else:
+                self.log_lengthscale = torch.nn.Parameter(torch.tensor(2.5))
+        else:
+            if separate_ll:
+                self.log_lengthscale = torch.nn.Parameter(torch.tensor([2.5]*D))
+            else:
+                self.log_lengthscale = torch.nn.Parameter(torch.tensor(2.5))
 
     def atomic_kernel(self, d1, d2):
         """

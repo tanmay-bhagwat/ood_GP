@@ -1,4 +1,5 @@
 import torch
+from torch.distributions import Normal
 
 class GPTrainer:
     def __init__(self, model, optimizer, scheduler, device="cpu"):
@@ -9,7 +10,6 @@ class GPTrainer:
 
     def train_epoch(self, data_loader, val_loader):
         model = self.model
-
         model.train()
         
         # One batch is the whole dataset
@@ -17,7 +17,16 @@ class GPTrainer:
         for batch_idx, (data, labels) in enumerate(data_loader):
             data, labels = data.to(self.device), labels.to(self.device)
             model.fit(data, labels)
-            train_loss = model.mll()
+            train_loss = model.nll()
+
+            ln_prior = Normal(loc=-3.0, scale=0.5)
+            ls_prior = Normal(loc=2, scale=0.5)
+            ll_prior = Normal(loc=2.5, scale=0.5)
+
+            reg_loss = -ln_prior.log_prob(model.log_noise) + \
+                -ls_prior.log_prob(model.kernel.log_sigvar) + -ll_prior.log_prob(model.kernel.log_lengthscale).sum()
+            
+            train_loss += reg_loss
             # print(f"Batch {batch_idx}, batch loss: {train_loss:.3f} ")
 
             self.optimizer.zero_grad()
@@ -35,7 +44,7 @@ class GPTrainer:
                 for _, (val_data, val_labels) in enumerate(val_loader):
                     val_data, val_labels = val_data.to(self.device), val_labels.to(self.device)
                     model.fit(val_data, val_labels)
-                    val_loss = model.mll()
+                    val_loss = model.nll()
 
                 self.scheduler.step(val_loss)
         
@@ -44,20 +53,21 @@ class GPTrainer:
     def train(self, epochs, data_loader, val_loader, reload_states=False):
 
         count_val, count_tn = 0, 0
-        delta = 1.5
+        f = 0.1
         patience, tn_limit = 25, 20
        
         model = self.model.to(device=self.device)
         train_loss_ls, val_loss_ls = [], []
-        base_epoch = 0
+        reload_epoch = 0
         epoch = 0
-        epoch += base_epoch
         if reload_states:
             checkpoint = torch.load("best_checkpoint.pth")
-            base_epoch = checkpoint["epoch"]
-        
+            reload_epoch = checkpoint["epoch"]
+        epoch += reload_epoch
+
         while epoch < epochs:
             train_loss, val_loss = self.train_epoch(data_loader, val_loader)
+            epoch += 1
             train_loss_ls.append(train_loss)
             val_loss_ls.append(val_loss)
             print(f"Epoch {epoch}: Train loss = {train_loss:.3f}, val loss = {val_loss:.3f}")
@@ -71,20 +81,25 @@ class GPTrainer:
                 torch.save(checkpoint, "best_checkpoint.pth")
 
             # need val loss to stay delta close to train loss
-            if epoch >= 100 and val_loss > train_loss + delta:
-                count_val += 1
-                if count_val == patience:
-                    print("======= Validation loss exceeded train loss! =======")
-                    print(f"Val loss exceeded train loss over {patience} epochs, calling early stop...")
-                    break
-            else:
-                count_val = 0
+            # if epoch >= 8:
+            #     if abs(val_loss - train_loss) > 0.5*train_loss:
+            #         print("======= Validation loss more than 50% away from train loss! =======")
+            #         print("Stopping...")
+            #         break
+            #     if abs(val_loss - train_loss) > f*train_loss:
+            #         count_val += 1
+            #         if count_val == patience:
+            #             print("======= Validation loss exceeded train loss! =======")
+            #             print(f"Val loss exceeded train loss over {patience} epochs, calling early stop...")
+            #             break
+            #     else:
+            #         count_val = 0
 
             # if val loss not decreasing over some iters, stop 
-            if epoch >= 150: 
+            if epoch >= 10: 
                 # hacky way to bypass errors when restarting training at an epoch > 150 with no val loss history
                 try:
-                    if val_loss > val_loss_ls[-2]:
+                    if torch.abs(val_loss - val_loss_ls[-2]) <= 0.001:
                         count_tn += 1
                         print("======= Validation loss increased =======")
                         if count_tn == tn_limit:
