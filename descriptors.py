@@ -32,51 +32,85 @@ from utils import *
 class AtomicDescriptor:
 
     def __init__(self, filepath="", X=None, y=None, descriptor_type='soap', **kwargs):
+        self.filepath = filepath
         self.X = X
         self.y = y
         self.descriptor_type = descriptor_type.lower()
-        self.params = kwargs
         self.device = kwargs.get('device', "cpu")
         self.dtype = kwargs.get('dtype', torch.float64)
-        self.sample_strategy = kwargs.get('sample_strategy', 'random')
+        self.sample_strategy = kwargs.get('sample_strategy', 'stratified')
 
         self.train_size = kwargs.get('train_size', 400)
-        self.val_size = kwargs.get('train_size', 80)
-        self.test_size = kwargs.get('train_size', 400)
+        self.val_size = kwargs.get('val_size', 80)
+        self.test_size = kwargs.get('test_size', 400)
 
-        db = np.load(filepath)
-        y = torch.tensor(db['energies'], device=self.device, dtype=self.dtype)
-        norm_y = (y - y.mean())/y.std()
+        self.kwargs = kwargs
+        self.train_X, self.train_y = None, None
+        self.val_X, self.val_y = None, None
+        self.test_X, self.test_y = None, None
 
-        train_pts, val_pts, test_pts = train_val_test(norm_y, self.train_size, self.val_size, self.test_size, strategy=self.sample_strategy)
+        self._data_prep()
+
+
+    def _data_prep(self):
+        if self.filepath != "":
+            db = np.load(self.filepath)
+            y_raw = torch.tensor(db['energies'], device="cpu", dtype=self.dtype)
+        else:
+            y_raw = self.y
+            if self.X is None or self.y is None:
+                raise ValueError("No filepath given and no data was assigned!")
+       
+        norm_y = (y_raw - y_raw.mean())/y_raw.std()
+
+        if self.sample_strategy == "random":
+            train_pts, val_pts, test_pts = train_val_test(len(norm_y), 
+                                                  self.train_size, self.val_size, self.test_size, strategy=self.sample_strategy)
+        
+        elif self.sample_strategy == "stratified":
+            desc_path = self.kwargs.get("desc_path", "SoapDesc_6000.pt")
+
+            X = torch.load(desc_path, weights_only=False)["saved_desc"]
+            saved_idxs = torch.load(desc_path, weights_only=False)["idxs"]
+            bulk_idxs = torch.where(torch.abs(norm_y)<=2)[0]
+            idxs = list([idx for idx in bulk_idxs if idx < X.shape[0]])
+            train_pts = fps(X[idxs], sample_size=self.train_size)
+
+            ood_idxs =  torch.where(torch.abs(norm_y)>2)[0]
+            remaining_bulk = list(set(bulk_idxs) - set(train_pts))
+            _, val_pts, test_pts = train_val_test(len(norm_y),
+                                                  self.train_size, self.val_size, self.test_size, strategy=self.sample_strategy,
+                                                  bulk_indices=remaining_bulk, ood_indices=ood_idxs)
 
         if self.descriptor_type == 'soap':
-            
-            self.train_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in train_pts]
-            self.train_y = y[train_pts]
-            self.val_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in val_pts]
-            self.val_y = y[val_pts]
-            self.test_X = [ase.Atoms(symbols="C"*6+"H"*6, positions=db['coords'][i,:,:]) for i in test_pts]
-            self.test_y = y[test_pts]
-            self.r_cut = kwargs.get('r_cut', 6.0)
-            self.sigma = kwargs.get('sigma', 1.0)
-            self.species_ls = kwargs.get('species_ls')
-            self.n_max = kwargs.get('n_max', 12)
-            self.l_max = kwargs.get('l_max', 8)
+
+            symbols = self.kwargs.get("symbols", "C"*6+"H"*6)
+
+            self.train_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in train_pts]
+            self.train_y = y_raw[train_pts]
+            self.val_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in val_pts]
+            self.val_y = y_raw[val_pts]
+            self.test_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in test_pts]
+            self.test_y = y_raw[test_pts]
+            self.r_cut = self.kwargs.get('r_cut', 6.0)
+            self.sigma = self.kwargs.get('sigma', 1.0)
+            self.species_ls = self.kwargs.get('species_ls')
+            self.n_max = self.kwargs.get('n_max', 12)
+            self.l_max = self.kwargs.get('l_max', 8)
 
         elif self.descriptor_type == "bp":
             X = db['coords']
             self.train_X = db['coords'][train_pts, : ,:]
-            self.train_y = y[train_pts]
+            self.train_y = y_raw[train_pts]
             self.val_X = db['coords'][val_pts, : ,:]
-            self.val_y = y[val_pts]
+            self.val_y = y_raw[val_pts]
             self.test_X = db['coords'][test_pts, : ,:]
-            self.test_y = y[test_pts]
+            self.test_y = y_raw[test_pts]
 
             ### Default BP descriptor hyperparams if not given
-            self.r_cut_ls = kwargs.get('r_cut_ls', [6.0, 3.5])
-            self.sigma_ls = kwargs.get('sigma_ls', [1.0])
-            self.n_basis = kwargs.get('n_basis', 4)
+            self.r_cut_ls = self.kwargs.get('r_cut_ls', [6.0, 3.5])
+            self.sigma_ls = self.kwargs.get('sigma_ls', [1.0])
+            self.n_basis = self.kwargs.get('n_basis', 4)
 
 
     def cutoff_fn(self, r, r_cut):

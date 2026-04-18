@@ -1,9 +1,9 @@
 import torch
 from torch.utils.data import DataLoader
-from models import BPGPModel
+from models import GPModel
 from train import GPTrainer
 from utils import *
-from kernels import BPKernel
+from kernels import StructKernel
 from data_visualize import *
 from descriptors import AtomicDescriptor
 
@@ -13,16 +13,22 @@ print(f"Using device: {device}")
 
 ### load the dataset and split into train-val-test
 train_size = 400
-val_size = 80
+val_size = int(train_size*0.2)
 test_size = 400
-make_new = True
+make_new = False
 reload_states = False
+calculate_desc_for_fps = False
+learnable = True
+
+if calculate_desc_for_fps:
+       subset = 6000
+       block_descriptors_calc("rmd17_benzene.npz", subset=subset, species_ls=["C","H"], r_cut=6.0, sigma=0.5, n_max=12, l_max=8)
 
 if make_new:
         print("Making descriptors from scratch...")
         ad = AtomicDescriptor(filepath="rmd17_benzene.npz", train_size=train_size, val_size=val_size, test_size=test_size,
                         descriptor_type="soap", species_ls = ["C","H"], r_cut=6.0, sigma=0.5, n_max=12, l_max=8, device=device,
-                        sample_strategy="random")
+                        sample_strategy="stratified")
         train_X_norm, val_X_norm, test_X_norm = ad.get_features()
         train_y, val_y, test_y = ad.get_labels()
 
@@ -37,6 +43,13 @@ else:
         val_X_norm, val_y = d['val_X_norm'].double(), d['val_y'].double()
         test_X_norm, test_y = d['test_X_norm'].double(), d['test_y'].double()
 
+if train_X_norm.shape[0] != train_size:
+       raise ValueError("Train size does not match to input given!")
+if val_X_norm.shape[0] != val_size:
+       raise ValueError("Val size does not match to input given!")
+if test_X_norm.shape[0] != test_size:
+       raise ValueError("Test size does not match to input given!")
+
 ### Make a dataset and dataloader (this is extra, was not necessary in hindsight)
 traindataset = AtomicEnvDataset(train_X_norm, train_y)
 valdataset = AtomicEnvDataset(val_X_norm, val_y)
@@ -50,14 +63,19 @@ test_X_norm = test_X_norm.to(device=device, dtype=torch.float64)
 test_y = test_y.to(device=device, dtype=torch.float64)
 
 
-model = BPGPModel(log_noise=-0.5).to(device=device, dtype=torch.float64)
-kernel = BPKernel(D=train_X_norm.shape[-1], learnable=True).to(device=device, dtype=torch.float64)
+model = GPModel(log_noise=-10.).to(device=device, dtype=torch.float64)
+kernel = StructKernel(D=train_X_norm.shape[-1], learnable=learnable, separate_ll=True).to(device=device, dtype=torch.float64)
 model.set_kernel(kernel)
 model.fit(train_X_norm, train_y)
 
-optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 2e-3},
-        {"params": model.kernel.log_sigvar, "lr": 2e-3},
-        {"params": model.log_noise, "lr": 2e-3},{"params": model.kernel.embed.parameters(), "lr":1e-3, "weight_decay":2e-4}])
+if learnable:
+        optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 2e-3},
+                {"params": model.kernel.log_sigvar, "lr": 2e-3},
+                {"params": model.log_noise, "lr": 1e-4},{"params": model.kernel.embed.parameters(), "lr":1e-3, "weight_decay":1e-4}])
+else:
+       optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 1e-3},
+        {"params": model.kernel.log_sigvar, "lr": 1e-3},
+        {"params": model.log_noise, "lr": 1e-4}])
 
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, mode="min", patience=15)
 epochs = 600
@@ -88,16 +106,18 @@ with torch.no_grad():
    print("Load best model to evaluate...")
    checkpoint = torch.load("best_checkpoint.pth")
    model.load_state_dict(checkpoint["model_state_dict"])
-#    model.log_noise = torch.nn.Parameter(torch.tensor(-6), requires_grad=False)
+#    model.log_noise = torch.nn.Parameter(torch.tensor(-10), requires_grad=False)
 #    model.kernel.log_sigvar = torch.nn.Parameter(torch.tensor(2.0), requires_grad=False)
-#    model.kernel.log_lengthscale = torch.nn.Parameter(torch.tensor(0.95), requires_grad=False)
+#    model.kernel.log_lengthscale = torch.nn.Parameter(torch.tensor(2.5), requires_grad=False)
+   print(test_X_norm.shape)
    mean, var = model.predict(test_X_norm)
+   
    print("mean shape:", mean.shape)
    print("var min:", var.min())
    print("var max:", var.max())
    
-   print("Predictions: ", mean)
-   print("Actual labels: ", test_y)
+#    print("Predictions: ", mean)
+#    print("Actual labels: ", test_y)
 
 
 error = torch.abs(mean.cpu()-test_y.cpu())
@@ -115,4 +135,4 @@ plot_VarError(error, var, torch.exp(model.log_noise).detach().cpu().numpy())
 plot_PredActualE(mean, test_y, var)
 print("Final log_noise:", model.log_noise.item())
 print("Final log_sigvar:", kernel.log_sigvar.item())
-print("Final log_lengthscale:", kernel.log_lengthscale.item())
+print("Final log_lengthscale:", kernel.log_lengthscale.tolist())
