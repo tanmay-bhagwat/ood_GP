@@ -1,11 +1,11 @@
 import torch
 from torch.utils.data import DataLoader
-from models import BPGPModel
-from train import GPTrainer
-from utils import *
-from descriptors import AtomicDescriptor
-from kernels import BPKernel
-from data_visualize import *
+from prod.models import GPModel
+from prod.train import GPTrainer
+from prod.utils import *
+from prod.descriptors import AtomicDescriptor
+from prod.kernels import StructKernel
+from prod.data_visualize import *
 
 TRAIN_X_MEAN, TRAIN_X_STD = 0, 1
 TRAIN_Y_MEAN, TRAIN_Y_STD = 0, 1
@@ -34,9 +34,9 @@ def learning_curve(train_sizes, test_size=200, epochs=50):
 
         print("Finished computing, normalizing descriptors...\n")
 
-        model = BPGPModel().to(device=device, dtype=torch.float64)
+        model = GPModel().to(device=device, dtype=torch.float64)
         model.fit(train_X_norm, train_y)
-        kernel = BPKernel(D=train_X_norm.shape[-1], learnable=True).to(device=device, dtype=torch.float64)
+        kernel = StructKernel(D=train_X_norm.shape[-1], learnable=True).to(device=device, dtype=torch.float64)
         model.set_kernel(kernel)
 
         optimizer = torch.optim.Adam([{"params": model.kernel.log_lengthscale, "lr": 2e-3},
@@ -52,7 +52,7 @@ def learning_curve(train_sizes, test_size=200, epochs=50):
             torch.cuda.empty_cache()
             for epoch in range(epochs):
                 optimizer.zero_grad()
-                loss = model.mll()
+                loss = model.nll()
                 loss.backward()
                 optimizer.step()
                 print(f"Train loss: {loss.item():.3f}")
