@@ -17,7 +17,7 @@ class GPTrainer:
         self.dtype = self.config["dtype"]
 
         self.model = GPModel(log_noise=self.config["log_noise"]).to(device=self.device, dtype=self.dtype)
-        self.kernel = StructKernel(D=self.config["dim_size"], log_sigvar=self.config["log_sigvar"], log_lengthscale=self.config["log_lengthscale"],
+        self.kernel = StructKernel(D=self.config["dim_size"], log_sigvar=self.config["log_sigvar"], log_lengthscale=self.config["log_lengthscale"], hidden_dim=config["hidden_dim"],
                                    learnable=self.config["learnable"], separate_ll=False).to(device=self.device, dtype=self.dtype)
         self.model.set_kernel(self.kernel)
         self.optimizer = torch.optim.Adam([{"params": self.model.kernel.log_lengthscale, "lr": float(self.config["lr_ll"])},
@@ -69,7 +69,7 @@ class GPTrainer:
             torch.save((model.state_dict(), self.optimizer.state_dict()), path)
             checkpoint = tune.Checkpoint.from_directory(temp_checkpoint_dir)
 
-            # Report both metrics and checkpoint to Ray Tune
+            # Report metrics and checkpoint to Ray Tune
             tune.report(metrics, checkpoint=checkpoint)
 
         return train_loss, val_loss
@@ -135,7 +135,7 @@ class GPTrainer:
 device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 print(f"Using device: {device}")
 
-### load the dataset and split into train-val-test
+# --- Load the dataset and split into train-val-test
 train_size = 400
 val_size = int(train_size*0.2)
 test_size = 400
@@ -148,18 +148,18 @@ r_cut = 6.0
 sigma = 1.0
 n_max = 12
 l_max = 8
-
+rawdata_filepath = "rmd17_benzene.npz"
 
 # --- First get a large descriptor database for running fps
 if calculate_desc_for_fps:
     subset = 6000
-    block_descriptors_calc("rmd17_benzene.npz", subset=subset, species_ls=["C","H"], r_cut=r_cut, sigma=sigma, n_max=n_max, l_max=l_max)
+    block_descriptors_calc(rawdata_filepath, subset=subset, species_ls=["C","H"], r_cut=r_cut, sigma=sigma, n_max=n_max, l_max=l_max)
 
 # --- Either make new descriptors or reload existing ones
 # --- For consistency, the database above and the train-val-test datasets below should have the same SOAP params (r_cut, sigma, n_max, l_max)
 if make_new_descriptors:
     print("Making descriptors from scratch...")
-    ad = AtomicDescriptor(filepath="rmd17_benzene.npz", train_size=train_size, val_size=val_size, test_size=test_size,
+    ad = AtomicDescriptor(filepath=rawdata_filepath, train_size=train_size, val_size=val_size, test_size=test_size,
                     descriptor_type="soap", species_ls = ["C","H"], r_cut=r_cut, sigma=sigma, n_max=n_max, l_max=l_max, device=device,
                     sample_strategy="stratified")
     train_X_norm, val_X_norm, test_X_norm = ad.get_features()
@@ -183,13 +183,18 @@ if val_X_norm.shape[0] != val_size:
 if test_X_norm.shape[0] != test_size:
        raise ValueError("Test size does not match given input size!")
 
-### Make a dataset and dataloader (this is extra, was not necessary in hindsight)
+# --- Make a dataset and dataloader (this is extra, was not necessary in hindsight)
 
 print("Finished initializing dataloaders...\n")
 test_X_norm = test_X_norm.to(device=device, dtype=torch.float64)
 test_y = test_y.to(device=device, dtype=torch.float64)
 
 # --- Use Ray Storage to put datasets into shared memory before workers initialize for Ray processes
+ray_tmp_dir = os.path.expandvars("/work/10132/tanmay303/ls6/ray_tmp")
+os.makedirs(ray_tmp_dir, exist_ok=True)
+
+ray.init(_temp_dir=ray_tmp_dir)
+
 train_x = ray.put(train_X_norm)
 train_y = ray.put(train_y)
 
@@ -199,9 +204,9 @@ val_y = ray.put(val_y)
 # --- Define model params and hyperparams in a single config dict
 config = {"device":"cuda", "dtype":torch.float64,
           "log_noise":-6.0,
-          "dim_size":train_X_norm.shape[-1], "log_lengthscale":0.1, "log_sigvar":3.0, "hidden_dim":16, "learnable":True,
+          "dim_size":train_X_norm.shape[-1], "log_lengthscale":0.1, "log_sigvar":3.0, "hidden_dim":16, "learnable":learnable,
           "lr_ll": tune.loguniform(1e-4,1e-2), "lr_ls": tune.loguniform(1e-4,1e-2), "lr_ln": tune.loguniform(1e-4,1e-2), "lr_embed": tune.loguniform(1e-4,1e-2), "weight_decay": tune.loguniform(1e-5,1e-3),
-          "max_num_epochs": 800, "train_x":train_x, "train_y":train_y, "val_x":val_x, "val_y":val_y}
+          "max_num_epochs": 500, "train_x":train_x, "train_y":train_y, "val_x":val_x, "val_y":val_y}
 
 def train_fn(config):
 
@@ -222,11 +227,11 @@ def train_fn(config):
 def shallow_name(trial):
     return f"trial_{trial.trial_id}"
 
-scheduler = ASHAScheduler(max_t=config["max_num_epochs"], grace_period=1, reduction_factor=2)
-tuner = tune.Tuner(tune.with_resources(train_fn, resources={"cpu": 2, "gpu": 1}),
+scheduler = ASHAScheduler(max_t=config["max_num_epochs"], grace_period=20, reduction_factor=2)
+tuner = tune.Tuner(tune.with_resources(train_fn, resources={"cpu": 4, "gpu": 1}),
                    param_space=config,
-                   run_config=tune.RunConfig(storage_path="C:/ray_results", name="gp_exp"),
-                   tune_config=tune.TuneConfig(mode="min", metric="loss", scheduler=scheduler, num_samples=10, 
+                   run_config=tune.RunConfig(storage_path=f"{ray_tmp_dir}", name="gp_exp"),
+                   tune_config=tune.TuneConfig(mode="min", metric="loss", scheduler=scheduler, num_samples=20, 
                                                trial_dirname_creator=shallow_name))
 
 results = tuner.fit()

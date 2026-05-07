@@ -5,6 +5,8 @@
 *.pt
 *.pth
 *.traj
+*.yml
+*.yaml
 
 # Ignore IDE and OS noise
 .DS_Store

@@ -1,0 +1,1045 @@
+
+Lmod is automatically replacing "intel/19.1.1" with "gcc/15.2.0".
+
+
+Inactive Modules:
+  1) impi     2) python3
+
+/var/spool/slurmd/job3146111/slurm_script: line 9: activate: No such file or directory
+2026-05-06 12:09:51,312	INFO worker.py:2012 -- Started a local Ray instance.
+/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_private/worker.py:2051: FutureWarning: Tip: In future versions of Ray, Ray will no longer override accelerator visible devices env var if num_gpus=0 or num_gpus=None (default). To enable this behavior and turn off this error message, set RAY_ACCEL_ENV_VAR_OVERRIDE_ON_ZERO=0
+  warnings.warn(
+[36m(train_fn pid=2674810)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00000/checkpoint_000000)
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000069)[32m [repeated 109x across cluster] (Ray deduplicates logs by default. Set RAY_DEDUP_LOGS=0 to disable log deduplication, or see https://docs.ray.io/en/master/ray-observability/user-guides/configure-logging.html#log-deduplication for more options.)[0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000142)[32m [repeated 73x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000185)[32m [repeated 103x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000230)[32m [repeated 45x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000274)[32m [repeated 104x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000318)[32m [repeated 44x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000360)[32m [repeated 94x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000405)[32m [repeated 183x across cluster][0m
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000449)[32m [repeated 174x across cluster][0m
+[36m(train_fn pid=2675526)[0m [2026-05-06 12:11:14,796 E 2675526 2675592] logging.cc:125: Stack trace: 
+[36m(train_fn pid=2675526)[0m  /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_raylet.so(+0x17a1d8a) [0x145bde7a0d8a] ray::operator<<()
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_raylet.so(+0x17a283c) [0x145bde7a183c] ray::RayLog::operator<< <>()
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_raylet.so(+0x17a4df8) [0x145bde7a3df8] ray::TerminateHandler()
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libstdc++.so.6(+0xc2519) [0x145bdccb5519] __cxxabiv1::__terminate()
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libstdc++.so.6(_ZSt10unexpectedv+0) [0x145bdccaf063] std::unexpected()
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libstdc++.so.6(__gxx_personality_v0+0x409) [0x145bdccb51ec] __gxx_personality_v0
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libgcc_s.so.1(+0x162d6) [0x145bdcbe92d6] _Unwind_ForcedUnwind_Phase2
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libgcc_s.so.1(_Unwind_ForcedUnwind+0x6d) [0x145bdcbe965c] _Unwind_ForcedUnwind
+[36m(train_fn pid=2675526)[0m /lib64/libpthread.so.0(__pthread_unwind+0x46) [0x145becc8b656] __pthread_unwind
+[36m(train_fn pid=2675526)[0m /lib64/libpthread.so.0(+0x946b) [0x145becc8346b]
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(PyUnstable_PerfMapState_Init+0) [0x565375c1892f] PyUnstable_PerfMapState_Init
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x106017) [0x565375b7b017] take_gil.cold
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(PyEval_RestoreThread+0x12) [0x565375cced02] PyEval_RestoreThread
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/torch/lib/libtorch_python.so(+0x704b6d) [0x14482d0efb6d] THPVariable_subclass_clear()
+[36m(train_fn pid=2675526)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/torch/lib/libtorch_python.so(+0x7050f0) [0x14482d0f00f0] THPVariable_subclass_dealloc()
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x1e562f) [0x565375c5a62f] list_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x2300ea) [0x565375ca50ea] frame_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x22ee6a) [0x565375ca3e6a] tb_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x22ee63) [0x565375ca3e63] tb_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x22ee63) [0x565375ca3e63] tb_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x22ee63) [0x565375ca3e63] tb_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x22ee63) [0x565375ca3e63] tb_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x22ee63) [0x565375ca3e63] tb_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x1eca0f) [0x565375c61a0f] BaseException_clear
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x270f12) [0x565375ce5f12] NameError_clear
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x2f4271) [0x565375d69271] NameError_dealloc
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(_PyEval_EvalFrameDefault+0xc2f) [0x565375c74a5f] _PyEval_EvalFrameDefault
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x249693) [0x565375cbe693] _PyObject_VectorcallTstate.lto_priv.14
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x249260) [0x565375cbe260] method_vectorcall
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x32da32) [0x565375da2a32] thread_run
+[36m(train_fn pid=2675526)[0m ray::ImplicitFunc(+0x32d9e4) [0x565375da29e4] pythread_wrapper
+[36m(train_fn pid=2675526)[0m /lib64/libpthread.so.0(+0x81ca) [0x145becc821ca] start_thread
+[36m(train_fn pid=2675526)[0m /lib64/libc.so.6(clone+0x43) [0x145bec1538d3] clone
+[36m(train_fn pid=2675526)[0m 
+[36m(train_fn pid=2675526)[0m *** SIGABRT received at time=1778087474 on cpu 40 ***
+[36m(train_fn pid=2675526)[0m PC: @     0x145bec16852f  (unknown)  raise
+[36m(train_fn pid=2675526)[0m     @     0x145becc8cd20       4816  (unknown)
+[36m(train_fn pid=2675526)[0m     @     0x145bdccb5519       6384  __cxxabiv1::__terminate()
+[36m(train_fn pid=2675526)[0m     @     0x145becc8b5f0  (unknown)  (unknown)
+[36m(train_fn pid=2675526)[0m [2026-05-06 12:11:14,797 E 2675526 2675592] logging.cc:474: *** SIGABRT received at time=1778087474 on cpu 40 ***
+[36m(train_fn pid=2675526)[0m [2026-05-06 12:11:14,797 E 2675526 2675592] logging.cc:474: PC: @     0x145bec16852f  (unknown)  raise
+[36m(train_fn pid=2675526)[0m [2026-05-06 12:11:14,797 E 2675526 2675592] logging.cc:474:     @     0x145becc8cd20       4816  (unknown)
+[36m(train_fn pid=2675526)[0m [2026-05-06 12:11:14,797 E 2675526 2675592] logging.cc:474:     @     0x145bdccb5519       6384  __cxxabiv1::__terminate()
+[36m(train_fn pid=2675526)[0m [2026-05-06 12:11:14,797 E 2675526 2675592] logging.cc:474:     @     0x145becc8b5f0  (unknown)  (unknown)
+[36m(train_fn pid=2675526)[0m Fatal Python error: Aborted
+[36m(train_fn pid=2675526)[0m 
+[36m(train_fn pid=2675526)[0m Stack (most recent call first):
+[36m(train_fn pid=2675526)[0m   File "/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/air/_internal/util.py", line 109 in run
+[36m(train_fn pid=2675526)[0m   File "/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/threading.py", line 1075 in _bootstrap_inner
+[36m(train_fn pid=2675526)[0m   File "/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/threading.py", line 1032 in _bootstrap
+[36m(train_fn pid=2674809)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00002/checkpoint_000494)[32m [repeated 45x across cluster][0m
+[36m(train_fn pid=2674809)[0m [2026-05-06 12:11:20,033 E 2674809 2675157] logging.cc:125: Stack trace: 
+[36m(train_fn pid=2674809)[0m  /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_raylet.so(+0x17a1d8a) [0x14b91309fd8a] ray::operator<<()
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_raylet.so(+0x17a283c) [0x14b9130a083c] ray::RayLog::operator<< <>()
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/_raylet.so(+0x17a4df8) [0x14b9130a2df8] ray::TerminateHandler()
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libstdc++.so.6(+0xc2519) [0x14b9115b4519] __cxxabiv1::__terminate()
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libstdc++.so.6(_ZSt10unexpectedv+0) [0x14b9115ae063] std::unexpected()
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libstdc++.so.6(__gxx_personality_v0+0x409) [0x14b9115b41ec] __gxx_personality_v0
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libgcc_s.so.1(+0x162d6) [0x14b9114e82d6] _Unwind_ForcedUnwind_Phase2
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/bin/../lib/libgcc_s.so.1(_Unwind_ForcedUnwind+0x6d) [0x14b9114e865c] _Unwind_ForcedUnwind
+[36m(train_fn pid=2674809)[0m /lib64/libpthread.so.0(__pthread_unwind+0x46) [0x14b92158a656] __pthread_unwind
+[36m(train_fn pid=2674809)[0m /lib64/libpthread.so.0(+0x946b) [0x14b92158246b]
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(PyUnstable_PerfMapState_Init+0) [0x55c65b40892f] PyUnstable_PerfMapState_Init
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x106017) [0x55c65b36b017] take_gil.cold
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(PyEval_RestoreThread+0x12) [0x55c65b4bed02] PyEval_RestoreThread
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/torch/lib/libtorch_python.so(+0x704b6d) [0x14a5619e8b6d] THPVariable_subclass_clear()
+[36m(train_fn pid=2674809)[0m /work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/torch/lib/libtorch_python.so(+0x7050f0) [0x14a5619e90f0] THPVariable_subclass_dealloc()
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x1e562f) [0x55c65b44a62f] list_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x2300ea) [0x55c65b4950ea] frame_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x22ee6a) [0x55c65b493e6a] tb_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x22ee63) [0x55c65b493e63] tb_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x22ee63) [0x55c65b493e63] tb_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x22ee63) [0x55c65b493e63] tb_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x22ee63) [0x55c65b493e63] tb_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x22ee63) [0x55c65b493e63] tb_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x1eca0f) [0x55c65b451a0f] BaseException_clear
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x270f12) [0x55c65b4d5f12] NameError_clear
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x2f4271) [0x55c65b559271] NameError_dealloc
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(_PyEval_EvalFrameDefault+0xc2f) [0x55c65b464a5f] _PyEval_EvalFrameDefault
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x249693) [0x55c65b4ae693] _PyObject_VectorcallTstate.lto_priv.14
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x249260) [0x55c65b4ae260] method_vectorcall
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x32da32) [0x55c65b592a32] thread_run
+[36m(train_fn pid=2674809)[0m ray::ImplicitFunc(+0x32d9e4) [0x55c65b5929e4] pythread_wrapper
+[36m(train_fn pid=2674809)[0m /lib64/libpthread.so.0(+0x81ca) [0x14b9215811ca] start_thread
+[36m(train_fn pid=2674809)[0m /lib64/libc.so.6(clone+0x43) [0x14b920a528d3] clone
+[36m(train_fn pid=2674809)[0m 
+[36m(train_fn pid=2674809)[0m *** SIGABRT received at time=1778087480 on cpu 8 ***
+[36m(train_fn pid=2674809)[0m PC: @     0x14b920a6752f  (unknown)  raise
+[36m(train_fn pid=2674809)[0m     @     0x14b92158bd20       4816  (unknown)
+[36m(train_fn pid=2674809)[0m     @     0x14b9115b4519       6384  __cxxabiv1::__terminate()
+[36m(train_fn pid=2674809)[0m     @     0x14b92158a5f0  (unknown)  (unknown)
+[36m(train_fn pid=2674809)[0m [2026-05-06 12:11:20,034 E 2674809 2675157] logging.cc:474: *** SIGABRT received at time=1778087480 on cpu 8 ***
+[36m(train_fn pid=2674809)[0m [2026-05-06 12:11:20,034 E 2674809 2675157] logging.cc:474: PC: @     0x14b920a6752f  (unknown)  raise
+[36m(train_fn pid=2674809)[0m [2026-05-06 12:11:20,034 E 2674809 2675157] logging.cc:474:     @     0x14b92158bd20       4816  (unknown)
+[36m(train_fn pid=2674809)[0m [2026-05-06 12:11:20,034 E 2674809 2675157] logging.cc:474:     @     0x14b9115b4519       6384  __cxxabiv1::__terminate()
+[36m(train_fn pid=2674809)[0m [2026-05-06 12:11:20,034 E 2674809 2675157] logging.cc:474:     @     0x14b92158a5f0  (unknown)  (unknown)
+[36m(train_fn pid=2674809)[0m Fatal Python error: Aborted
+[36m(train_fn pid=2674809)[0m 
+[36m(train_fn pid=2674809)[0m Stack (most recent call first):
+[36m(train_fn pid=2674809)[0m   File "/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/site-packages/ray/air/_internal/util.py", line 109 in run
+[36m(train_fn pid=2674809)[0m   File "/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/threading.py", line 1075 in _bootstrap_inner
+[36m(train_fn pid=2674809)[0m   File "/work/10132/tanmay303/ls6/miniconda3/envs/torch_tune/lib/python3.12/threading.py", line 1032 in _bootstrap
+[36m(train_fn pid=2674809)[0m 
+[36m(train_fn pid=2674809)[0m Extension modules: msgpack._cmsgpack, google._upb._message, psutil._psutil_linux, charset_normalizer.md, charset_normalizer.cd, requests.packages.charset_normalizer.md, requests.packages.chardet.md, requests.packages.charset_normalizer.cd, requests.packages.chardet.cd, yaml._yaml, ray._raylet, numpy._core._multiarray_umath, numpy.linalg._umath_linalg, pyarrow.lib, numpy.random._common, numpy.random.bit_generator, numpy.random._bounded_integers, numpy.random._pcg64, numpy.random._generator, numpy.random._mt19937, numpy.random._philox, numpy.random._sfc64, numpy.random.mtrand, _cyutility, pandas._libs._cyutility, pandas._libs.tslibs.ccalendar, pandas._libs.tslibs.np_datetime, pandas._libs.tslibs.dtypes, pandas._libs.tslibs.base, pandas._libs.tslibs.nattype, pandas._libs.tslibs.timezones, pandas._libs.properties, pandas._libs.tslibs.fields, pandas._libs.tslibs.timedeltas, pandas._libs.tslibs.tzconversion, pandas._libs.tslibs.timestamps, pandas._libs.tslibs.offsets, pandas._libs.tslibs.strptime, pandas._libs.tslibs.parsing, pandas._libs.tslibs.conversion, pandas._libs.tslibs.period, pandas._libs.tslibs.vectorized, pandas._libs.ops_dispatch, pandas._libs.missing, pandas._libs.hashtable, pandas._libs.algos, pandas._libs.interval, pandas._libs.lib, pyarrow._compute, pandas._libs.ops, pandas._libs.hashing, pandas._libs.arrays, pandas._libs.tslib, pandas._libs.sparse, pandas._libs.internals, pandas._libs.indexing, pandas._libs.index, pandas._libs.writers, pandas._libs.join, pandas._libs.window.aggregations, pandas._libs.window.indexers, pandas._libs.reshape, pandas._libs.groupby, pandas._libs.json, pandas._libs.parsers, pandas._libs.testing, pyarrow._fs, pyarrow._azurefs, pyarrow._hdfs, pyarrow._gcsfs, pyarrow._s3fs, pyarrow._parquet, torch._C, torch._C._dynamo.autograd_compiler, torch._C._dynamo.eval_frame, torch._C._dynamo.guards, torch._C._dynamo.utils, torch._C._fft, torch._C._linalg, torch._C._nested, torch._C._nn, torch._C._sparse, torch._C._special, scipy._cyutility, scipy._lib._ccallback_c, scipy.sparse._sparsetools, _csparsetools, scipy.sparse._csparsetools, scipy.spatial._ckdtree, scipy._lib.messagestream, scipy.linalg._fblas, scipy.linalg._flapack, scipy.linalg.cython_lapack, scipy.linalg._cythonized_array_utils, scipy.linalg._solve_toeplitz, scipy.linalg._batched_linalg, scipy.linalg._decomp_lu_cython, scipy.linalg._matfuncs_schur_sqrtm, scipy.linalg._matfuncs_expm, scipy.linalg._linalg_pythran, scipy.linalg.cython_blas, scipy.linalg._decomp_update, scipy.spatial._qhull, scipy.spatial._voronoi, scipy.special._ufuncs_cxx, scipy.special._ellip_harm_2, scipy.special._special_ufuncs, scipy.special._gufuncs, scipy.special._ufuncs, scipy.special._specfun, scipy.special._comb, scipy.spatial._hausdorff, scipy.spatial._distance_wrap, scipy.spatial.transform._rotation_cy, scipy.spatial.transform._rigid_transform_cy, numba.core.typeconv._typeconv, numba._helperlib, numba._dynfunc, numba._dispatcher, numba.core.runtime._nrt_python, numba.np.ufunc._internal, numba.experimental.jitclass._box, sklearn.__check_build._check_build, scipy.sparse.linalg._dsolve._superlu, scipy.sparse.linalg._eigen.arpack._arpacklib, scipy.sparse.linalg._propack, scipy.optimize._group_columns, scipy.optimize._trlib._trlib, scipy.optimize._lbfgsb, _moduleTNC, scipy.optimize._moduleTNC, scipy.optimize._slsqplib, scipy.optimize._minpack, scipy.optimize._lsq.givens_elimination, scipy.optimize._zeros, scipy._lib._uarray._uarray, scipy.linalg._decomp_interpolative, scipy.optimize._bglu_dense, scipy.optimize._lsap, scipy.optimize._direct, scipy.integrate._odepack, scipy.integrate._quadpack, scipy.integrate._vode, scipy.integrate._dop, scipy.interpolate._fitpack, scipy.interpolate._dfitpack, scipy.interpolate._dierckx, scipy.interpolate._ppoly, scipy.interpolate._interpnd, scipy.interpolate._rbfinterp_pythran, scipy.interpolate._rgi_cython, scipy.special.cython_special, scipy.stats._stats, scipy.stats._biasedurn, scipy.stats._stats_pythran, scipy.stats._levy_stable.levyst, scipy.stats._ansari_swilk_statistics, scipy.sparse.csgraph._tools, scipy.sparse.csgraph._shortest_path, scipy.sparse.csgraph._traversal, scipy.sparse.csgraph._min_spanning_tree, scipy.sparse.csgraph._flow, scipy.sparse.csgraph._matching, scipy.sparse.csgraph._reordering, scipy.stats._sobol, scipy.stats._qmc_cy, scipy.stats._rcont.rcont, scipy.stats._qmvnt_cy, scipy.ndimage._nd_image, scipy.ndimage._rank_filter_1d, _ni_label, scipy.ndimage._ni_label, sklearn._cyutility, sklearn.utils._isfinite, sklearn.utils.sparsefuncs_fast, sklearn.utils.murmurhash, sklearn.utils._openmp_helpers, sklearn.preprocessing._csr_polynomial_expansion, sklearn.preprocessing._target_encoder_fast, pyarrow._json (total: 180)
+[36m(train_fn pid=2675608)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00010/checkpoint_000018)[32m [repeated 41x across cluster][0m
+[36m(train_fn pid=2675608)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00010/checkpoint_000091)[32m [repeated 102x across cluster][0m
+[36m(train_fn pid=2675608)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00010/checkpoint_000159)[32m [repeated 82x across cluster][0m
+[36m(train_fn pid=2675895)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00013/checkpoint_000009)[32m [repeated 30x across cluster][0m
+[36m(train_fn pid=2675965)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00014/checkpoint_000015)[32m [repeated 35x across cluster][0m
+[36m(train_fn pid=2676094)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00016/checkpoint_000010)[32m [repeated 66x across cluster][0m
+[36m(train_fn pid=2676183)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00018/checkpoint_000000)[32m [repeated 10x across cluster][0m
+2026-05-06 12:11:59,518	INFO tune.py:1001 -- Wrote the latest version of all result files and experiment state to '/work/10132/tanmay303/ls6/ray_tmp/gp_exp' in 0.0839s.
+Using device: cuda
+Loading descriptors...
+Finished initializing dataloaders...
+
+╭──────────────────────────────────────────────────────────╮
+│ Configuration for experiment     gp_exp                  │
+├──────────────────────────────────────────────────────────┤
+│ Search algorithm                 BasicVariantGenerator   │
+│ Scheduler                        AsyncHyperBandScheduler │
+│ Number of trials                 20                      │
+╰──────────────────────────────────────────────────────────╯
+
+View detailed results here: /work/10132/tanmay303/ls6/ray_tmp/gp_exp
+To visualize your results with TensorBoard, run: `tensorboard --logdir /work/10132/tanmay303/ls6/ray_tmp/session_2026-05-06_12-09-46_024597_2667374/artifacts/2026-05-06_12-09-54/gp_exp/driver_artifacts`
+
+Trial status: 20 PENDING
+Current time: 2026-05-06 12:09:55. Total running time: 0s
+Logical resource usage: 12.0/128 CPUs, 3.0/3 GPUs (0.0/1.0 accelerator_type:A100)
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name             status           lr_ll         lr_ls         lr_ln      lr_embed     weight_decay │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ train_fn_66c63_00000   PENDING    0.000223124   0.000569291   0.000554366   0.000253779      0.000727684 │
+│ train_fn_66c63_00001   PENDING    0.000184646   0.00315157    0.00041971    0.000201455      0.000970021 │
+│ train_fn_66c63_00002   PENDING    0.00133355    0.0037908     0.00568864    0.000148375      1.14389e-05 │
+│ train_fn_66c63_00003   PENDING    0.00990601    0.00399882    0.0011336     0.00017325       2.45777e-05 │
+│ train_fn_66c63_00004   PENDING    0.0014431     0.00012047    0.00257665    0.000254599      2.37464e-05 │
+│ train_fn_66c63_00005   PENDING    0.00265464    0.00267671    0.00415847    0.000224747      0.000498126 │
+│ train_fn_66c63_00006   PENDING    0.0027903     0.00010009    0.000712426   0.00130734       3.96575e-05 │
+│ train_fn_66c63_00007   PENDING    0.000413358   0.000274166   0.00186281    0.000729758      2.40327e-05 │
+│ train_fn_66c63_00008   PENDING    0.000354739   0.00233414    0.000553458   0.000550395      0.000401093 │
+│ train_fn_66c63_00009   PENDING    0.00541813    0.000131858   0.00149899    0.00234668       3.05885e-05 │
+│ train_fn_66c63_00010   PENDING    0.000222851   0.000109307   0.00043645    0.00148162       4.21883e-05 │
+│ train_fn_66c63_00011   PENDING    0.00989919    0.00299074    0.00597689    0.00512998       2.60313e-05 │
+│ train_fn_66c63_00012   PENDING    0.000210539   0.000182855   0.000448426   0.000222029      0.000330386 │
+│ train_fn_66c63_00013   PENDING    0.000121086   0.000492833   0.00341892    0.00123058       0.000189868 │
+│ train_fn_66c63_00014   PENDING    0.000150294   0.000232506   0.00208401    0.00302555       1.33136e-05 │
+│ train_fn_66c63_00015   PENDING    0.00188469    0.000636407   0.000641948   0.00791703       1.86008e-05 │
+│ train_fn_66c63_00016   PENDING    0.00140804    0.000168973   0.000773528   0.000446407      1.3188e-05  │
+│ train_fn_66c63_00017   PENDING    0.000105437   0.0076049     0.00322798    0.000137956      6.49976e-05 │
+│ train_fn_66c63_00018   PENDING    0.000250858   0.000400411   0.000515884   0.00052499       0.000130985 │
+│ train_fn_66c63_00019   PENDING    0.00764285    0.000915883   0.000515212   0.00578683       0.000169356 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00001 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00001 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                            0.0002 │
+│ lr_ll                                              0.00018 │
+│ lr_ln                                              0.00042 │
+│ lr_ls                                              0.00315 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00097 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00002 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00002 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00015 │
+│ lr_ll                                              0.00133 │
+│ lr_ln                                              0.00569 │
+│ lr_ls                                              0.00379 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00001 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00000 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00000 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00025 │
+│ lr_ll                                              0.00022 │
+│ lr_ln                                              0.00055 │
+│ lr_ls                                              0.00057 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00073 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial status: 3 RUNNING | 17 PENDING
+Current time: 2026-05-06 12:10:25. Total running time: 30s
+Logical resource usage: 12.0/128 CPUs, 3.0/3 GPUs (0.0/1.0 accelerator_type:A100)
+╭──────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name             status           lr_ll         lr_ls         lr_ln      lr_embed     weight_decay │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ train_fn_66c63_00000   RUNNING    0.000223124   0.000569291   0.000554366   0.000253779      0.000727684 │
+│ train_fn_66c63_00001   RUNNING    0.000184646   0.00315157    0.00041971    0.000201455      0.000970021 │
+│ train_fn_66c63_00002   RUNNING    0.00133355    0.0037908     0.00568864    0.000148375      1.14389e-05 │
+│ train_fn_66c63_00003   PENDING    0.00990601    0.00399882    0.0011336     0.00017325       2.45777e-05 │
+│ train_fn_66c63_00004   PENDING    0.0014431     0.00012047    0.00257665    0.000254599      2.37464e-05 │
+│ train_fn_66c63_00005   PENDING    0.00265464    0.00267671    0.00415847    0.000224747      0.000498126 │
+│ train_fn_66c63_00006   PENDING    0.0027903     0.00010009    0.000712426   0.00130734       3.96575e-05 │
+│ train_fn_66c63_00007   PENDING    0.000413358   0.000274166   0.00186281    0.000729758      2.40327e-05 │
+│ train_fn_66c63_00008   PENDING    0.000354739   0.00233414    0.000553458   0.000550395      0.000401093 │
+│ train_fn_66c63_00009   PENDING    0.00541813    0.000131858   0.00149899    0.00234668       3.05885e-05 │
+│ train_fn_66c63_00010   PENDING    0.000222851   0.000109307   0.00043645    0.00148162       4.21883e-05 │
+│ train_fn_66c63_00011   PENDING    0.00989919    0.00299074    0.00597689    0.00512998       2.60313e-05 │
+│ train_fn_66c63_00012   PENDING    0.000210539   0.000182855   0.000448426   0.000222029      0.000330386 │
+│ train_fn_66c63_00013   PENDING    0.000121086   0.000492833   0.00341892    0.00123058       0.000189868 │
+│ train_fn_66c63_00014   PENDING    0.000150294   0.000232506   0.00208401    0.00302555       1.33136e-05 │
+│ train_fn_66c63_00015   PENDING    0.00188469    0.000636407   0.000641948   0.00791703       1.86008e-05 │
+│ train_fn_66c63_00016   PENDING    0.00140804    0.000168973   0.000773528   0.000446407      1.3188e-05  │
+│ train_fn_66c63_00017   PENDING    0.000105437   0.0076049     0.00322798    0.000137956      6.49976e-05 │
+│ train_fn_66c63_00018   PENDING    0.000250858   0.000400411   0.000515884   0.00052499       0.000130985 │
+│ train_fn_66c63_00019   PENDING    0.00764285    0.000915883   0.000515212   0.00578683       0.000169356 │
+╰──────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674810)[0m Epoch 1: Train loss = 1502.993, val loss = 157.887
+
+Trial train_fn_66c63_00000 completed after 20 iterations at 2026-05-06 12:10:30. Total running time: 36s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00000 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06467 │
+│ time_total_s                                    30.7979 │
+│ training_iteration                                   20 │
+│ loss                                          156.19847 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00001 completed after 20 iterations at 2026-05-06 12:10:30. Total running time: 36s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00001 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06503 │
+│ time_total_s                                   30.81689 │
+│ training_iteration                                   20 │
+│ loss                                          322.92471 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 70: Train loss = 209.193, val loss = 130.722[32m [repeated 107x across cluster][0m
+
+Trial train_fn_66c63_00004 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00004 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00025 │
+│ lr_ll                                              0.00144 │
+│ lr_ln                                              0.00258 │
+│ lr_ls                                              0.00012 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00002 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00003 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00003 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00017 │
+│ lr_ll                                              0.00991 │
+│ lr_ln                                              0.00113 │
+│ lr_ls                                                0.004 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00002 │
+╰────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 142: Train loss = 143.288, val loss = 134.990[32m [repeated 72x across cluster][0m
+
+Trial train_fn_66c63_00003 completed after 20 iterations at 2026-05-06 12:10:41. Total running time: 46s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00003 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                 0.0645 │
+│ time_total_s                                     3.9771 │
+│ training_iteration                                   20 │
+│ loss                                          177.08078 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00004 completed after 40 iterations at 2026-05-06 12:10:42. Total running time: 48s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00004 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                0.06349 │
+│ time_total_s                                    5.21894 │
+│ training_iteration                                   40 │
+│ loss                                          151.21469 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 186: Train loss = -458.706, val loss = 6.747[32m [repeated 102x across cluster][0m
+
+Trial train_fn_66c63_00005 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00005 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00022 │
+│ lr_ll                                              0.00265 │
+│ lr_ln                                              0.00416 │
+│ lr_ls                                              0.00268 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                        0.0005 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00006 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00006 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00131 │
+│ lr_ll                                              0.00279 │
+│ lr_ln                                              0.00071 │
+│ lr_ls                                               0.0001 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00004 │
+╰────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 231: Train loss = -500.838, val loss = 1.427[32m [repeated 45x across cluster][0m
+
+Trial train_fn_66c63_00006 completed after 20 iterations at 2026-05-06 12:10:52. Total running time: 57s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00006 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06409 │
+│ time_total_s                                    3.67521 │
+│ training_iteration                                   20 │
+│ loss                                           169.6725 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00005 completed after 40 iterations at 2026-05-06 12:10:53. Total running time: 59s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00005 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                0.06453 │
+│ time_total_s                                    5.31603 │
+│ training_iteration                                   40 │
+│ loss                                          144.86343 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 275: Train loss = -603.482, val loss = -34.139[32m [repeated 102x across cluster][0m
+
+Trial status: 6 TERMINATED | 1 RUNNING | 13 PENDING
+Current time: 2026-05-06 12:10:55. Total running time: 1min 0s
+Logical resource usage: 8.0/128 CPUs, 2.0/3 GPUs (0.0/1.0 accelerator_type:A100)
+Current best trial: 66c63_00002 with loss=-38.50513412355859 and params={'device': 'cuda', 'dtype': torch.float64, 'log_noise': -6.0, 'dim_size': 2700, 'log_lengthscale': 0.1, 'log_sigvar': 3.0, 'hidden_dim': 16, 'learnable': True, 'lr_ll': 0.0013335503916269734, 'lr_ls': 0.0037908014728481676, 'lr_ln': 0.0056886429358991185, 'lr_embed': 0.00014837542648023152, 'weight_decay': 1.1438890869889009e-05, 'max_num_epochs': 500, 'train_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000001e1f505), 'train_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000002e1f505), 'val_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000003e1f505), 'val_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000004e1f505)}
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name             status             lr_ll         lr_ls         lr_ln      lr_embed     weight_decay     iter     total time (s)       loss │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ train_fn_66c63_00002   RUNNING      0.00133355    0.0037908     0.00568864    0.000148375      1.14389e-05      283           53.8539    -38.5051 │
+│ train_fn_66c63_00000   TERMINATED   0.000223124   0.000569291   0.000554366   0.000253779      0.000727684       20           30.7979    156.198  │
+│ train_fn_66c63_00001   TERMINATED   0.000184646   0.00315157    0.00041971    0.000201455      0.000970021       20           30.8169    322.925  │
+│ train_fn_66c63_00003   TERMINATED   0.00990601    0.00399882    0.0011336     0.00017325       2.45777e-05       20            3.9771    177.081  │
+│ train_fn_66c63_00004   TERMINATED   0.0014431     0.00012047    0.00257665    0.000254599      2.37464e-05       40            5.21894   151.215  │
+│ train_fn_66c63_00005   TERMINATED   0.00265464    0.00267671    0.00415847    0.000224747      0.000498126       40            5.31603   144.863  │
+│ train_fn_66c63_00006   TERMINATED   0.0027903     0.00010009    0.000712426   0.00130734       3.96575e-05       20            3.67521   169.673  │
+│ train_fn_66c63_00007   PENDING      0.000413358   0.000274166   0.00186281    0.000729758      2.40327e-05                                        │
+│ train_fn_66c63_00008   PENDING      0.000354739   0.00233414    0.000553458   0.000550395      0.000401093                                        │
+│ train_fn_66c63_00009   PENDING      0.00541813    0.000131858   0.00149899    0.00234668       3.05885e-05                                        │
+│ train_fn_66c63_00010   PENDING      0.000222851   0.000109307   0.00043645    0.00148162       4.21883e-05                                        │
+│ train_fn_66c63_00011   PENDING      0.00989919    0.00299074    0.00597689    0.00512998       2.60313e-05                                        │
+│ train_fn_66c63_00012   PENDING      0.000210539   0.000182855   0.000448426   0.000222029      0.000330386                                        │
+│ train_fn_66c63_00013   PENDING      0.000121086   0.000492833   0.00341892    0.00123058       0.000189868                                        │
+│ train_fn_66c63_00014   PENDING      0.000150294   0.000232506   0.00208401    0.00302555       1.33136e-05                                        │
+│ train_fn_66c63_00015   PENDING      0.00188469    0.000636407   0.000641948   0.00791703       1.86008e-05                                        │
+│ train_fn_66c63_00016   PENDING      0.00140804    0.000168973   0.000773528   0.000446407      1.3188e-05                                         │
+│ train_fn_66c63_00017   PENDING      0.000105437   0.0076049     0.00322798    0.000137956      6.49976e-05                                        │
+│ train_fn_66c63_00018   PENDING      0.000250858   0.000400411   0.000515884   0.00052499       0.000130985                                        │
+│ train_fn_66c63_00019   PENDING      0.00764285    0.000915883   0.000515212   0.00578683       0.000169356                                        │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 319: Train loss = -638.735, val loss = -39.860[32m [repeated 44x across cluster][0m
+
+Trial train_fn_66c63_00007 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00007 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00073 │
+│ lr_ll                                              0.00041 │
+│ lr_ln                                              0.00186 │
+│ lr_ls                                              0.00027 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00002 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00008 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00008 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00055 │
+│ lr_ll                                              0.00035 │
+│ lr_ln                                              0.00055 │
+│ lr_ls                                              0.00233 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                        0.0004 │
+╰────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 361: Train loss = -537.189, val loss = -1.336[32m [repeated 94x across cluster][0m
+[36m(train_fn pid=2674809)[0m Epoch 406: Train loss = -680.924, val loss = -35.744[32m [repeated 183x across cluster][0m
+
+Trial train_fn_66c63_00008 completed after 160 iterations at 2026-05-06 12:11:14. Total running time: 1min 19s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00008 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000159 │
+│ time_this_iter_s                                0.10584 │
+│ time_total_s                                   13.25947 │
+│ training_iteration                                  160 │
+│ loss                                          129.59428 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00007 completed after 160 iterations at 2026-05-06 12:11:14. Total running time: 1min 19s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00007 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000159 │
+│ time_this_iter_s                                0.10828 │
+│ time_total_s                                   13.32764 │
+│ training_iteration                                  160 │
+│ loss                                          199.44041 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2674809)[0m Epoch 450: Train loss = -748.798, val loss = -54.135[32m [repeated 172x across cluster][0m
+[36m(train_fn pid=2674809)[0m Epoch 495: Train loss = -779.692, val loss = -54.853[32m [repeated 45x across cluster][0m
+
+Trial train_fn_66c63_00002 completed after 500 iterations at 2026-05-06 12:11:19. Total running time: 1min 25s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00002 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000499 │
+│ time_this_iter_s                                0.10565 │
+│ time_total_s                                   77.16864 │
+│ training_iteration                                  500 │
+│ loss                                          -62.18543 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00010 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00010 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00148 │
+│ lr_ll                                              0.00022 │
+│ lr_ln                                              0.00044 │
+│ lr_ls                                              0.00011 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00004 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00009 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00009 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00235 │
+│ lr_ll                                              0.00542 │
+│ lr_ln                                               0.0015 │
+│ lr_ls                                              0.00013 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00003 │
+╰────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2675608)[0m Epoch 19: Train loss = 1135.868, val loss = 123.019[32m [repeated 40x across cluster][0m
+
+Trial status: 9 TERMINATED | 2 RUNNING | 9 PENDING
+Current time: 2026-05-06 12:11:25. Total running time: 1min 30s
+Logical resource usage: 12.0/128 CPUs, 3.0/3 GPUs (0.0/1.0 accelerator_type:A100)
+Current best trial: 66c63_00002 with loss=-62.18543052824495 and params={'device': 'cuda', 'dtype': torch.float64, 'log_noise': -6.0, 'dim_size': 2700, 'log_lengthscale': 0.1, 'log_sigvar': 3.0, 'hidden_dim': 16, 'learnable': True, 'lr_ll': 0.0013335503916269734, 'lr_ls': 0.0037908014728481676, 'lr_ln': 0.0056886429358991185, 'lr_embed': 0.00014837542648023152, 'weight_decay': 1.1438890869889009e-05, 'max_num_epochs': 500, 'train_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000001e1f505), 'train_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000002e1f505), 'val_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000003e1f505), 'val_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000004e1f505)}
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name             status             lr_ll         lr_ls         lr_ln      lr_embed     weight_decay     iter     total time (s)       loss │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ train_fn_66c63_00009   RUNNING      0.00541813    0.000131858   0.00149899    0.00234668       3.05885e-05       29            4.59334   143.443  │
+│ train_fn_66c63_00010   RUNNING      0.000222851   0.000109307   0.00043645    0.00148162       4.21883e-05       30            4.64511   122.917  │
+│ train_fn_66c63_00000   TERMINATED   0.000223124   0.000569291   0.000554366   0.000253779      0.000727684       20           30.7979    156.198  │
+│ train_fn_66c63_00001   TERMINATED   0.000184646   0.00315157    0.00041971    0.000201455      0.000970021       20           30.8169    322.925  │
+│ train_fn_66c63_00002   TERMINATED   0.00133355    0.0037908     0.00568864    0.000148375      1.14389e-05      500           77.1686    -62.1854 │
+│ train_fn_66c63_00003   TERMINATED   0.00990601    0.00399882    0.0011336     0.00017325       2.45777e-05       20            3.9771    177.081  │
+│ train_fn_66c63_00004   TERMINATED   0.0014431     0.00012047    0.00257665    0.000254599      2.37464e-05       40            5.21894   151.215  │
+│ train_fn_66c63_00005   TERMINATED   0.00265464    0.00267671    0.00415847    0.000224747      0.000498126       40            5.31603   144.863  │
+│ train_fn_66c63_00006   TERMINATED   0.0027903     0.00010009    0.000712426   0.00130734       3.96575e-05       20            3.67521   169.673  │
+│ train_fn_66c63_00007   TERMINATED   0.000413358   0.000274166   0.00186281    0.000729758      2.40327e-05      160           13.3276    199.44   │
+│ train_fn_66c63_00008   TERMINATED   0.000354739   0.00233414    0.000553458   0.000550395      0.000401093      160           13.2595    129.594  │
+│ train_fn_66c63_00011   PENDING      0.00989919    0.00299074    0.00597689    0.00512998       2.60313e-05                                        │
+│ train_fn_66c63_00012   PENDING      0.000210539   0.000182855   0.000448426   0.000222029      0.000330386                                        │
+│ train_fn_66c63_00013   PENDING      0.000121086   0.000492833   0.00341892    0.00123058       0.000189868                                        │
+│ train_fn_66c63_00014   PENDING      0.000150294   0.000232506   0.00208401    0.00302555       1.33136e-05                                        │
+│ train_fn_66c63_00015   PENDING      0.00188469    0.000636407   0.000641948   0.00791703       1.86008e-05                                        │
+│ train_fn_66c63_00016   PENDING      0.00140804    0.000168973   0.000773528   0.000446407      1.3188e-05                                         │
+│ train_fn_66c63_00017   PENDING      0.000105437   0.0076049     0.00322798    0.000137956      6.49976e-05                                        │
+│ train_fn_66c63_00018   PENDING      0.000250858   0.000400411   0.000515884   0.00052499       0.000130985                                        │
+│ train_fn_66c63_00019   PENDING      0.00764285    0.000915883   0.000515212   0.00578683       0.000169356                                        │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00009 completed after 40 iterations at 2026-05-06 12:11:25. Total running time: 1min 31s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00009 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                0.06714 │
+│ time_total_s                                    5.30521 │
+│ training_iteration                                   40 │
+│ loss                                          141.16593 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00011 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00011 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00513 │
+│ lr_ll                                               0.0099 │
+│ lr_ln                                              0.00598 │
+│ lr_ls                                              0.00299 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00003 │
+╰────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2675608)[0m Epoch 92: Train loss = 1070.159, val loss = 122.468[32m [repeated 101x across cluster][0m
+
+Trial train_fn_66c63_00011 completed after 20 iterations at 2026-05-06 12:11:30. Total running time: 1min 35s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00011 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06459 │
+│ time_total_s                                    3.73248 │
+│ training_iteration                                   20 │
+│ loss                                          157.44483 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00012 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00012 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00022 │
+│ lr_ll                                              0.00021 │
+│ lr_ln                                              0.00045 │
+│ lr_ls                                              0.00018 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00033 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00010 completed after 160 iterations at 2026-05-06 12:11:34. Total running time: 1min 39s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00010 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000159 │
+│ time_this_iter_s                                0.10749 │
+│ time_total_s                                   13.26852 │
+│ training_iteration                                  160 │
+│ loss                                          282.55955 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2675828)[0m Epoch 1: Train loss = 4171.929, val loss = 164.887[32m [repeated 81x across cluster][0m
+
+Trial train_fn_66c63_00013 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00013 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00123 │
+│ lr_ll                                              0.00012 │
+│ lr_ln                                              0.00342 │
+│ lr_ls                                              0.00049 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00019 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00012 completed after 20 iterations at 2026-05-06 12:11:36. Total running time: 1min 41s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00012 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06612 │
+│ time_total_s                                    4.01608 │
+│ training_iteration                                   20 │
+│ loss                                           163.3893 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2675895)[0m Epoch 19: Train loss = 4059.528, val loss = 173.972[32m [repeated 37x across cluster][0m
+
+Trial train_fn_66c63_00013 completed after 20 iterations at 2026-05-06 12:11:40. Total running time: 1min 45s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00013 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                 0.0632 │
+│ time_total_s                                    3.71709 │
+│ training_iteration                                   20 │
+│ loss                                          173.89524 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00014 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00014 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00303 │
+│ lr_ll                                              0.00015 │
+│ lr_ln                                              0.00208 │
+│ lr_ls                                              0.00023 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00001 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00015 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00015 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00792 │
+│ lr_ll                                              0.00188 │
+│ lr_ln                                              0.00064 │
+│ lr_ls                                              0.00064 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00002 │
+╰────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2675965)[0m Epoch 23: Train loss = 691.002, val loss = 142.161[32m [repeated 39x across cluster][0m
+
+Trial train_fn_66c63_00014 completed after 40 iterations at 2026-05-06 12:11:46. Total running time: 1min 51s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00014 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                 0.0638 │
+│ time_total_s                                    4.89311 │
+│ training_iteration                                   40 │
+│ loss                                          141.60438 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00016 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00016 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00045 │
+│ lr_ll                                              0.00141 │
+│ lr_ln                                              0.00077 │
+│ lr_ls                                              0.00017 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00001 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00015 completed after 40 iterations at 2026-05-06 12:11:46. Total running time: 1min 52s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00015 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                0.06441 │
+│ time_total_s                                    4.20332 │
+│ training_iteration                                   40 │
+│ loss                                          147.96998 │
+╰─────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2676094)[0m Epoch 19: Train loss = 1751.361, val loss = 164.523[32m [repeated 58x across cluster][0m
+
+Trial train_fn_66c63_00016 completed after 20 iterations at 2026-05-06 12:11:50. Total running time: 1min 55s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00016 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06425 │
+│ time_total_s                                    3.70185 │
+│ training_iteration                                   20 │
+│ loss                                          164.21072 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00017 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00017 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00014 │
+│ lr_ll                                              0.00011 │
+│ lr_ln                                              0.00323 │
+│ lr_ls                                               0.0076 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00006 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00018 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00018 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00052 │
+│ lr_ll                                              0.00025 │
+│ lr_ln                                              0.00052 │
+│ lr_ls                                               0.0004 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00013 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00019 started with configuration:
+╭────────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00019 config                          │
+├────────────────────────────────────────────────────────────┤
+│ device                                                cuda │
+│ dim_size                                              2700 │
+│ dtype                                        torch.float64 │
+│ hidden_dim                                              16 │
+│ learnable                                             True │
+│ log_lengthscale                                        0.1 │
+│ log_noise                                              -6. │
+│ log_sigvar                                              3. │
+│ lr_embed                                           0.00579 │
+│ lr_ll                                              0.00764 │
+│ lr_ln                                              0.00052 │
+│ lr_ls                                              0.00092 │
+│ max_num_epochs                                         500 │
+│ train_x                               ...0100000001e1f505) │
+│ train_y                               ...0100000002e1f505) │
+│ val_x                                 ...0100000003e1f505) │
+│ val_y                                 ...0100000004e1f505) │
+│ weight_decay                                       0.00017 │
+╰────────────────────────────────────────────────────────────╯
+
+Trial status: 17 TERMINATED | 3 RUNNING
+Current time: 2026-05-06 12:11:55. Total running time: 2min 0s
+Logical resource usage: 12.0/128 CPUs, 3.0/3 GPUs (0.0/1.0 accelerator_type:A100)
+Current best trial: 66c63_00002 with loss=-62.18543052824495 and params={'device': 'cuda', 'dtype': torch.float64, 'log_noise': -6.0, 'dim_size': 2700, 'log_lengthscale': 0.1, 'log_sigvar': 3.0, 'hidden_dim': 16, 'learnable': True, 'lr_ll': 0.0013335503916269734, 'lr_ls': 0.0037908014728481676, 'lr_ln': 0.0056886429358991185, 'lr_embed': 0.00014837542648023152, 'weight_decay': 1.1438890869889009e-05, 'max_num_epochs': 500, 'train_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000001e1f505), 'train_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000002e1f505), 'val_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000003e1f505), 'val_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000004e1f505)}
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name             status             lr_ll         lr_ls         lr_ln      lr_embed     weight_decay     iter     total time (s)       loss │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ train_fn_66c63_00017   RUNNING      0.000105437   0.0076049     0.00322798    0.000137956      6.49976e-05                                        │
+│ train_fn_66c63_00018   RUNNING      0.000250858   0.000400411   0.000515884   0.00052499       0.000130985                                        │
+│ train_fn_66c63_00019   RUNNING      0.00764285    0.000915883   0.000515212   0.00578683       0.000169356                                        │
+│ train_fn_66c63_00000   TERMINATED   0.000223124   0.000569291   0.000554366   0.000253779      0.000727684       20           30.7979    156.198  │
+│ train_fn_66c63_00001   TERMINATED   0.000184646   0.00315157    0.00041971    0.000201455      0.000970021       20           30.8169    322.925  │
+│ train_fn_66c63_00002   TERMINATED   0.00133355    0.0037908     0.00568864    0.000148375      1.14389e-05      500           77.1686    -62.1854 │
+│ train_fn_66c63_00003   TERMINATED   0.00990601    0.00399882    0.0011336     0.00017325       2.45777e-05       20            3.9771    177.081  │
+│ train_fn_66c63_00004   TERMINATED   0.0014431     0.00012047    0.00257665    0.000254599      2.37464e-05       40            5.21894   151.215  │
+│ train_fn_66c63_00005   TERMINATED   0.00265464    0.00267671    0.00415847    0.000224747      0.000498126       40            5.31603   144.863  │
+│ train_fn_66c63_00006   TERMINATED   0.0027903     0.00010009    0.000712426   0.00130734       3.96575e-05       20            3.67521   169.673  │
+│ train_fn_66c63_00007   TERMINATED   0.000413358   0.000274166   0.00186281    0.000729758      2.40327e-05      160           13.3276    199.44   │
+│ train_fn_66c63_00008   TERMINATED   0.000354739   0.00233414    0.000553458   0.000550395      0.000401093      160           13.2595    129.594  │
+│ train_fn_66c63_00009   TERMINATED   0.00541813    0.000131858   0.00149899    0.00234668       3.05885e-05       40            5.30521   141.166  │
+│ train_fn_66c63_00010   TERMINATED   0.000222851   0.000109307   0.00043645    0.00148162       4.21883e-05      160           13.2685    282.56   │
+│ train_fn_66c63_00011   TERMINATED   0.00989919    0.00299074    0.00597689    0.00512998       2.60313e-05       20            3.73248   157.445  │
+│ train_fn_66c63_00012   TERMINATED   0.000210539   0.000182855   0.000448426   0.000222029      0.000330386       20            4.01608   163.389  │
+│ train_fn_66c63_00013   TERMINATED   0.000121086   0.000492833   0.00341892    0.00123058       0.000189868       20            3.71709   173.895  │
+│ train_fn_66c63_00014   TERMINATED   0.000150294   0.000232506   0.00208401    0.00302555       1.33136e-05       40            4.89311   141.604  │
+│ train_fn_66c63_00015   TERMINATED   0.00188469    0.000636407   0.000641948   0.00791703       1.86008e-05       40            4.20332   147.97   │
+│ train_fn_66c63_00016   TERMINATED   0.00140804    0.000168973   0.000773528   0.000446407      1.3188e-05        20            3.70185   164.211  │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+[36m(train_fn pid=2676183)[0m Epoch 1: Train loss = 2489.653, val loss = 215.851
+[36m(train_fn pid=2676182)[0m Epoch 1: Train loss = 1722.154, val loss = 141.928
+[36m(train_fn pid=2676182)[0m ======= Validation loss increased =======
+
+Trial train_fn_66c63_00018 completed after 20 iterations at 2026-05-06 12:11:57. Total running time: 2min 3s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00018 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000019 │
+│ time_this_iter_s                                0.06473 │
+│ time_total_s                                    4.12312 │
+│ training_iteration                                   20 │
+│ loss                                          212.37513 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00017 completed after 40 iterations at 2026-05-06 12:11:59. Total running time: 2min 4s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00017 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                0.06496 │
+│ time_total_s                                    5.41612 │
+│ training_iteration                                   40 │
+│ loss                                          144.67986 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial train_fn_66c63_00019 completed after 40 iterations at 2026-05-06 12:11:59. Total running time: 2min 4s
+╭─────────────────────────────────────────────────────────╮
+│ Trial train_fn_66c63_00019 result                       │
+├─────────────────────────────────────────────────────────┤
+│ checkpoint_dir_name                   checkpoint_000039 │
+│ time_this_iter_s                                0.06474 │
+│ time_total_s                                    4.34858 │
+│ training_iteration                                   40 │
+│ loss                                          141.91387 │
+╰─────────────────────────────────────────────────────────╯
+
+Trial status: 20 TERMINATED
+Current time: 2026-05-06 12:11:59. Total running time: 2min 4s
+Logical resource usage: 4.0/128 CPUs, 1.0/3 GPUs (0.0/1.0 accelerator_type:A100)
+Current best trial: 66c63_00002 with loss=-62.18543052824495 and params={'device': 'cuda', 'dtype': torch.float64, 'log_noise': -6.0, 'dim_size': 2700, 'log_lengthscale': 0.1, 'log_sigvar': 3.0, 'hidden_dim': 16, 'learnable': True, 'lr_ll': 0.0013335503916269734, 'lr_ls': 0.0037908014728481676, 'lr_ln': 0.0056886429358991185, 'lr_embed': 0.00014837542648023152, 'weight_decay': 1.1438890869889009e-05, 'max_num_epochs': 500, 'train_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000001e1f505), 'train_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000002e1f505), 'val_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000003e1f505), 'val_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000004e1f505)}
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ Trial name             status             lr_ll         lr_ls         lr_ln      lr_embed     weight_decay     iter     total time (s)       loss │
+├───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ train_fn_66c63_00000   TERMINATED   0.000223124   0.000569291   0.000554366   0.000253779      0.000727684       20           30.7979    156.198  │
+│ train_fn_66c63_00001   TERMINATED   0.000184646   0.00315157    0.00041971    0.000201455      0.000970021       20           30.8169    322.925  │
+│ train_fn_66c63_00002   TERMINATED   0.00133355    0.0037908     0.00568864    0.000148375      1.14389e-05      500           77.1686    -62.1854 │
+│ train_fn_66c63_00003   TERMINATED   0.00990601    0.00399882    0.0011336     0.00017325       2.45777e-05       20            3.9771    177.081  │
+│ train_fn_66c63_00004   TERMINATED   0.0014431     0.00012047    0.00257665    0.000254599      2.37464e-05       40            5.21894   151.215  │
+│ train_fn_66c63_00005   TERMINATED   0.00265464    0.00267671    0.00415847    0.000224747      0.000498126       40            5.31603   144.863  │
+│ train_fn_66c63_00006   TERMINATED   0.0027903     0.00010009    0.000712426   0.00130734       3.96575e-05       20            3.67521   169.673  │
+│ train_fn_66c63_00007   TERMINATED   0.000413358   0.000274166   0.00186281    0.000729758      2.40327e-05      160           13.3276    199.44   │
+│ train_fn_66c63_00008   TERMINATED   0.000354739   0.00233414    0.000553458   0.000550395      0.000401093      160           13.2595    129.594  │
+│ train_fn_66c63_00009   TERMINATED   0.00541813    0.000131858   0.00149899    0.00234668       3.05885e-05       40            5.30521   141.166  │
+│ train_fn_66c63_00010   TERMINATED   0.000222851   0.000109307   0.00043645    0.00148162       4.21883e-05      160           13.2685    282.56   │
+│ train_fn_66c63_00011   TERMINATED   0.00989919    0.00299074    0.00597689    0.00512998       2.60313e-05       20            3.73248   157.445  │
+│ train_fn_66c63_00012   TERMINATED   0.000210539   0.000182855   0.000448426   0.000222029      0.000330386       20            4.01608   163.389  │
+│ train_fn_66c63_00013   TERMINATED   0.000121086   0.000492833   0.00341892    0.00123058       0.000189868       20            3.71709   173.895  │
+│ train_fn_66c63_00014   TERMINATED   0.000150294   0.000232506   0.00208401    0.00302555       1.33136e-05       40            4.89311   141.604  │
+│ train_fn_66c63_00015   TERMINATED   0.00188469    0.000636407   0.000641948   0.00791703       1.86008e-05       40            4.20332   147.97   │
+│ train_fn_66c63_00016   TERMINATED   0.00140804    0.000168973   0.000773528   0.000446407      1.3188e-05        20            3.70185   164.211  │
+│ train_fn_66c63_00017   TERMINATED   0.000105437   0.0076049     0.00322798    0.000137956      6.49976e-05       40            5.41612   144.68   │
+│ train_fn_66c63_00018   TERMINATED   0.000250858   0.000400411   0.000515884   0.00052499       0.000130985       20            4.12312   212.375  │
+│ train_fn_66c63_00019   TERMINATED   0.00764285    0.000915883   0.000515212   0.00578683       0.000169356       40            4.34858   141.914  │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+Best trial config: {'device': 'cuda', 'dtype': torch.float64, 'log_noise': -6.0, 'dim_size': 2700, 'log_lengthscale': 0.1, 'log_sigvar': 3.0, 'hidden_dim': 16, 'learnable': True, 'lr_ll': 0.0013335503916269734, 'lr_ls': 0.0037908014728481676, 'lr_ln': 0.0056886429358991185, 'lr_embed': 0.00014837542648023152, 'weight_decay': 1.1438890869889009e-05, 'max_num_epochs': 500, 'train_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000001e1f505), 'train_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000002e1f505), 'val_x': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000003e1f505), 'val_y': ObjectRef(00ffffffffffffffffffffffffffffffffffffff0100000004e1f505)}
+Best trial final validation loss: -62.18543052824495
+[36m(train_fn pid=2676302)[0m Checkpoint successfully created at: Checkpoint(filesystem=local, path=/work/10132/tanmay303/ls6/ray_tmp/gp_exp/trial_66c63_00019/checkpoint_000039)[32m [repeated 99x across cluster][0m
+[36m(train_fn pid=2676302)[0m Epoch 39: Train loss = 910.588, val loss = 141.515[32m [repeated 95x across cluster][0m

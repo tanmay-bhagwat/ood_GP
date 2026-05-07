@@ -3,113 +3,29 @@ import torch, ase
 import numpy as np
 from utils import *
 
-### Example on using unsqueeze() to get pairwise distances
-# def pairwise_distances(R:torch.Tensor):
-#     """
-#     Parameters
-#     ---
-#     all_R: ndarray
-#         Positions of all atoms in config (N,atoms,3)
-
-#     Returns
-#     ---
-#     distance_mat: ndarray
-#         Pairwise distances (N,c)
-#     """
-#     # First unsqueeze at dim=1 so that we get (N,1,atoms,3), so that we have N batch size of all positions within a molec (atoms,3)
-#     # Then unsqueeze at dim=2 so that we get (N,atoms,1,3) N batch size of individual position row vectors (1,3) ->
-#     # This should result in (N,atoms,atoms,3) after broadcasting
-#     # Then apply norm on the last dim
-#     # Select unique distances using upper triangular indices only
-#     # Flatten to c columns
-    
-#     distance_mat = torch.linalg.norm(torch.unsqueeze(R, 1) - torch.unsqueeze(R, 2), dim=-1)
-#     idxs = torch.triu_indices(row=distance_mat.shape[0], col=distance_mat.shape[1], offset=1) # Triu_indices to select the unique distances
-    
-#     return distance_mat[:, idxs[0], idxs[1]]
-
 
 class AtomicDescriptor:
 
-    def __init__(self, filepath="", X=None, y=None, descriptor_type='soap', **kwargs):
-        self.filepath = filepath
+    def __init__(self, X=None, y=None, descriptor_type='soap', **kwargs):
         self.X = X
         self.y = y
         self.descriptor_type = descriptor_type.lower()
         self.device = kwargs.get('device', "cpu")
         self.dtype = kwargs.get('dtype', torch.float64)
-        self.sample_strategy = kwargs.get('sample_strategy', 'stratified')
-
-        self.train_size = kwargs.get('train_size', 400)
-        self.val_size = kwargs.get('val_size', 80)
-        self.test_size = kwargs.get('test_size', 400)
-
+        
         self.kwargs = kwargs
         self.train_X, self.train_y = None, None
         self.val_X, self.val_y = None, None
         self.test_X, self.test_y = None, None
 
-        self._data_prep()
-
-
-    def _data_prep(self):
-        if self.filepath != "":
-            db = np.load(self.filepath)
-            y_raw = torch.tensor(db['energies'], device="cpu", dtype=self.dtype)
-        else:
-            y_raw = self.y
-            if self.X is None or self.y is None:
-                raise ValueError("No filepath given and no data was assigned!")
-       
-        norm_y = (y_raw - y_raw.mean())/y_raw.std()
-
-        if self.sample_strategy == "random":
-            train_pts, val_pts, test_pts = train_val_test(len(norm_y), 
-                                                  self.train_size, self.val_size, self.test_size, strategy=self.sample_strategy)
-        
-        elif self.sample_strategy == "stratified":
-            desc_path = self.kwargs.get("desc_path", "SoapDesc_6000.pt")
-
-            X = torch.load(desc_path, weights_only=False)["saved_desc"]
-            
-            bulk_idxs = torch.where(torch.abs(norm_y)<=2)[0]
-            idxs = list([idx for idx in bulk_idxs if idx < X.shape[0]])
-            nonfps_idxs = np.random.choice(idxs, int(self.train_size*0.5), replace=False)
-            remaining_train = list([idx for idx in idxs if idx not in nonfps_idxs])
-            fps_idxs = fps(X[remaining_train], sample_size=int(self.train_size*0.5))
-            train_pts = torch.concat([torch.tensor(nonfps_idxs), fps_idxs])
-
-            ood_idxs =  torch.where(torch.abs(norm_y)>2)[0]
-            remaining_bulk = list(set(bulk_idxs) - set(train_pts))
-            _, val_pts, test_pts = train_val_test(len(norm_y),
-                                                  self.train_size, self.val_size, self.test_size, strategy=self.sample_strategy,
-                                                  bulk_indices=remaining_bulk, ood_indices=ood_idxs)
-
-        if self.descriptor_type == 'soap':
-
-            symbols = self.kwargs.get("symbols", "C"*6+"H"*6)
-
-            self.train_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in train_pts]
-            self.train_y = y_raw[train_pts]
-            self.val_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in val_pts]
-            self.val_y = y_raw[val_pts]
-            self.test_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in test_pts]
-            self.test_y = y_raw[test_pts]
+        if self.descriptor_type == "soap":
             self.r_cut = self.kwargs.get('r_cut', 6.0)
             self.sigma = self.kwargs.get('sigma', 1.0)
             self.species_ls = self.kwargs.get('species_ls')
             self.n_max = self.kwargs.get('n_max', 12)
             self.l_max = self.kwargs.get('l_max', 8)
-
+        
         elif self.descriptor_type == "bp":
-            X = db['coords']
-            self.train_X = db['coords'][train_pts, : ,:]
-            self.train_y = y_raw[train_pts]
-            self.val_X = db['coords'][val_pts, : ,:]
-            self.val_y = y_raw[val_pts]
-            self.test_X = db['coords'][test_pts, : ,:]
-            self.test_y = y_raw[test_pts]
-
             ### Default BP descriptor hyperparams if not given
             self.r_cut_ls = self.kwargs.get('r_cut_ls', [6.0, 3.5])
             self.sigma_ls = self.kwargs.get('sigma_ls', [1.0])
@@ -142,10 +58,11 @@ class AtomicDescriptor:
         """
 
         # Behler-Parrinello G2 symm function
-        device = R.device
+        device = self.device
+        dtype = self.dtype
         r = torch.linalg.norm(R.unsqueeze(0) - R.unsqueeze(1), dim=-1) # (N_at, N_at) tensor of interatomic distances
         fc = self.cutoff_fn(r, r_cut) # Compute cutoff values for all r
-        centers = torch.linspace(0, r_cut, self.n_basis, device=device, dtype=R.dtype) # Centers of n_basis exp basis functions
+        centers = torch.linspace(0, r_cut, self.n_basis, device=device, dtype=dtype) # Centers of n_basis exp basis functions
 
         arr = []
         for c in centers:
@@ -177,7 +94,8 @@ class AtomicDescriptor:
         """
 
         # Behler-Parrinello G5 symm function
-        device = R.device
+        device = self.device
+        dtype = self.dtype
         N = R.shape[0]
         desc = []
         la_ls = [-1,1]
@@ -188,7 +106,7 @@ class AtomicDescriptor:
             Ri = R - R[i,:]
             ri = torch.linalg.norm(Ri, dim=1) # (N_at,) tensor
             fc = self.cutoff_fn(ri, r_cut)
-            arr = torch.zeros(N**2, len(la_ls) * len(zeta_ls), dtype=R.dtype, device=device)
+            arr = torch.zeros(N**2, len(la_ls) * len(zeta_ls), dtype=dtype, device=device)
             
             for j in range(N):
                 Rj = R - R[j,:]
@@ -238,11 +156,11 @@ class AtomicDescriptor:
 
     def _get_soap_descriptors(self, X, species_ls, r_cut=6.0, sigma=1.0, n_max=12, l_max=8, device="cpu"):
 
-            soap = dscribe.descriptors.SOAP(species=species_ls, n_max=n_max, l_max=l_max, 
-                                            r_cut=r_cut, sigma=sigma, periodic=False)
-            desc = torch.tensor(soap.create(X))
+        soap = dscribe.descriptors.SOAP(species=species_ls, n_max=n_max, l_max=l_max, 
+                                        r_cut=r_cut, sigma=sigma, periodic=False)
+        desc = torch.tensor(soap.create(X))
 
-            return desc
+        return desc
 
 
     def get_features(self, normalize=True):
@@ -258,7 +176,7 @@ class AtomicDescriptor:
         elif self.descriptor_type == 'bp':
             desc1 = []
             for R in self.train_X:
-                d = self._bp_descriptor(R)
+                d = self._bp_descriptor(R.to(device=self.device, dtype=self.dtype))
                 desc1.append(d)
             train_X = torch.stack(desc1) # To batch descriptors, will return (N_at, N_at, 2) tensor
 

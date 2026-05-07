@@ -23,8 +23,10 @@ class StructKernel(torch.nn.Module):
             self.embed = LearnableEmbedding(D, hidden_dim) # Making this persistent to the kernel object
             num_features = self.embed.model[2].out_features
             self.log_lengthscale = torch.nn.Parameter(torch.tensor([log_lengthscale]*num_features))
-        elif separate_ll:
-            self.log_lengthscale = torch.nn.Parameter(torch.tensor([log_lengthscale]*D))
+        elif learnable:
+            self.embed = LearnableEmbedding(D, hidden_dim) # Making this persistent to the kernel object
+            num_features = self.embed.model[2].out_features
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([log_lengthscale]*num_features))
         else:
             self.log_lengthscale = torch.nn.Parameter(torch.tensor(log_lengthscale))
 

@@ -1,5 +1,7 @@
 import torch
 from torch.distributions import Normal
+import os, tempfile
+from ray import tune
 
 class GPTrainer:
     def __init__(self, model, optimizer, scheduler, device="cpu"):
@@ -32,7 +34,7 @@ class GPTrainer:
             train_loss.backward()
             self.optimizer.step()
             
-        # print(f"Total loss: {train_loss:.3f}")
+        print(f"Total loss: {train_loss:.3f}")
 
         if val_loader is not None:
             model.eval()
@@ -48,7 +50,7 @@ class GPTrainer:
         
         return train_loss.item(), val_loss.item()
 
-    def train(self, epochs, data_loader, val_loader, reload_states=False):
+    def train(self, epochs, data_loader, val_loader, reload_states=False, checkpoint_dir=""):
 
         count_val, count_tn = 0, 0
         f = 0.1
@@ -56,15 +58,21 @@ class GPTrainer:
        
         model = self.model.to(device=self.device)
         train_loss_ls, val_loss_ls = [], []
-        reload_epoch = 0
+
         epoch = 0
         if reload_states:
-            checkpoint = torch.load("best_checkpoint.pth")
-            reload_epoch = checkpoint["epoch"]
-        epoch += reload_epoch
+            checkpoint = torch.load(os.path.join(checkpoint_dir, "checkpoint.pt"))
+            model.load_state_dict(checkpoint["model_state_dict"])  # restore model weights 
+            self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
+            self.scheduler.load_state_dict(checkpoint["scheduler_state_dict"])
+            epoch = checkpoint["epoch"]
+            train_loss, val_loss = checkpoint["train_loss"], checkpoint["val_loss"]
+            train_loss_ls.append(train_loss)
+            val_loss_ls.append(val_loss)
 
         while epoch < epochs:
-            if epoch <= 150:
+            # --- Burn-in iterations for model to learn before starting judging
+            if epoch <= 50:
                 for param in model.kernel.embed.parameters():
                     param.requires_grad = False
             else:
@@ -77,12 +85,14 @@ class GPTrainer:
             val_loss_ls.append(val_loss)
             print(f"Epoch {epoch}: Train loss = {train_loss:.3f}, val loss = {val_loss:.3f}")
 
+            checkpoint_path = os.path.join(checkpoint_dir, "checkpoint.pt")
+            checkpoint = {"epoch":epoch, "model_state_dict": self.model.state_dict(), 
+                              "optimizer_state_dict": self.optimizer.state_dict(), "scheduler_state_dict": self.scheduler.state_dict(),
+                              "train_loss": train_loss, "val_loss":val_loss}
+            torch.save(checkpoint, checkpoint_path)
+
             if val_loss <= min(val_loss_ls):
                 print("Saving best model...\n")
-                # print(model.alpha.shape, model.L.shape)
-                checkpoint = {"epoch":epoch, "model_state_dict": self.model.state_dict(), 
-                              "optimizer_state_dict": self.optimizer.state_dict(), "scheduler_state_dict": self.scheduler.state_dict(),
-                              "loss":val_loss}
                 torch.save(checkpoint, "best_checkpoint.pth")
 
             # need val loss to stay delta close to train loss
@@ -102,21 +112,17 @@ class GPTrainer:
 
             # if val loss not decreasing over some iters, stop 
             if epoch >= 10: 
-                # hacky way to bypass errors when restarting training at an epoch > 150 with no val loss history
-                try:
-                    if torch.abs(val_loss - val_loss_ls[-2]) <= 0.001:
-                        count_tn += 1
-                        print("======= Validation loss increased =======")
-                        if count_tn == tn_limit:
-                            print(f"Validation loss increased for {tn_limit} consecutive epochs, stopping...")
-                            checkpoint = {"epoch":epoch, "model_state_dict": self.model.state_dict(), 
-                                "optimizer_state_dict": self.optimizer.state_dict(), "scheduler_state_dict": self.scheduler.state_dict(),
-                                "loss":val_loss}
-                            torch.save(checkpoint, "last_checkpoint.pth")
-                            break
-                    else:
-                        count_tn = 0 
-                except:
-                    pass
-        
+                if torch.abs(val_loss - val_loss_ls[-2]) <= 0.001:
+                    count_tn += 1
+                    print("======= Validation loss increased =======")
+                    if count_tn == tn_limit:
+                        print(f"Validation loss increased for {tn_limit} consecutive epochs, stopping...")
+                        checkpoint = {"epoch":epoch, "model_state_dict": self.model.state_dict(), 
+                            "optimizer_state_dict": self.optimizer.state_dict(), "scheduler_state_dict": self.scheduler.state_dict(),
+                            "loss":val_loss}
+                        torch.save(checkpoint, "last_checkpoint.pth")
+                        break
+                else:
+                    count_tn = 0 
+                
         return train_loss_ls, val_loss_ls

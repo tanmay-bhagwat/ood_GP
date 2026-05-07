@@ -1,23 +1,9 @@
 import numpy as np
-from torch.utils.data import Dataset
 import torch, ase
+import os
 import dscribe.descriptors
 from tqdm import tqdm
-
-class AtomicEnvDataset(Dataset):
-
-    def __init__(self, descriptors, energy) -> None:
-        super().__init__()
-        self.X = descriptors
-        self.y = energy
-
-    def __len__(self):
-        return len(self.X)
     
-    def __getitem__(self, index):
-        return self.X[index], self.y[index]
-    
-
 def train_val_test(db_size, train_size=100, val_size=20, test_size=10, strategy="random", **kwargs):
     
     ### Define train, val, test sample sizes
@@ -41,7 +27,7 @@ def train_val_test(db_size, train_size=100, val_size=20, test_size=10, strategy=
         return training_pts, validation_pts, test_pts
     
         
-    elif strategy=="stratified":
+    elif strategy=="fps_ood":
 
         if len(bulk_idxs) == 0 or len(ood_idxs) == 0:
             print(f"Bulk list len: {len(bulk_idxs)}, ood_idxs len: {len(ood_idxs)}")
@@ -81,20 +67,6 @@ def fps(descriptors:torch.Tensor, sample_size):
     descr = descriptors.to(device=device)
     desc2d = descr.mean(dim=1)
 
-    # np.random.seed(1)
-    # next_idx = np.random.randint(0, descr.shape[0])
-    # min_dist = torch.full((descr.shape[0],), float('inf'), device=descr.device)
-    
-    # for _ in tqdm(range(sample_size)):
-
-    #     cluster.append(next_idx)
-    #     next_pt = desc2d[next_idx]
-        
-    #     dist_to_new = torch.sum((desc2d - next_pt)**2, dim=1)
-    #     min_dist = torch.minimum(min_dist, dist_to_new) # defines the boundary of the cluster
-        
-    #     next_idx = torch.argmax(min_dist)
-
     np.random.seed(1)
     next_idx = np.random.randint(0,descr.shape[0])
     cluster.append(next_idx)
@@ -115,9 +87,9 @@ def fps(descriptors:torch.Tensor, sample_size):
     return torch.tensor(cluster).to(device=orig_device)
 
 
-def block_descriptors_calc(filepath, species_ls, r_cut=6.0, sigma=0.5, n_max=12, l_max=8, subset=6000):
+def block_descriptors_calc(rawdata_path, featuresdir_path, species_ls, r_cut=6.0, sigma=0.5, n_max=12, l_max=8, subset=6000):
 
-    db = np.load(filepath)
+    db = np.load(rawdata_path)
     y = db['energies']
     y = (y-y.mean())/y.std()
     bulk_mask = np.random.choice(np.argwhere(np.abs(y)<=2).reshape(-1), subset//2, replace=False)
@@ -141,6 +113,5 @@ def block_descriptors_calc(filepath, species_ls, r_cut=6.0, sigma=0.5, n_max=12,
     desc = torch.stack(desc)
     dct["saved_desc"] = desc
        
-    torch.save(dct, f"SoapDesc_{len(desc)}.pt")
-
-# block_descriptors_calc("rmd17_benzene.npz", ["C","H"], 6.0, 0.5, 12, 8, 6000)
+    featuresfile = os.path.join(featuresdir_path, f"SoapDesc_{len(desc)}.pt")
+    torch.save(dct, featuresfile)
