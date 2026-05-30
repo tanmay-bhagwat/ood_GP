@@ -4,9 +4,8 @@ n_basis = 4
 
 class LearnableEmbedding(torch.nn.Module):
 
-    def __init__(self, D):
+    def __init__(self, D, hidden_dim):
         super().__init__()
-        hidden_dim = 32
         self.model = torch.nn.Sequential(torch.nn.Linear(in_features=D, out_features=hidden_dim, dtype=torch.float64), 
                                          torch.nn.ReLU(), torch.nn.Linear(hidden_dim, hidden_dim, dtype=torch.float64))
     
@@ -16,23 +15,21 @@ class LearnableEmbedding(torch.nn.Module):
 
 class StructKernel(torch.nn.Module):
 
-    def __init__(self, D, learnable=False, separate_ll=False):
+    def __init__(self, D, log_sigvar=1.0, log_lengthscale=1.0, hidden_dim=32, learnable=False, separate_ll=False):
         super().__init__()
-        self.log_sigvar = torch.nn.Parameter(torch.tensor(1.0))
+        self.log_sigvar = torch.nn.Parameter(torch.tensor(log_sigvar))
         self.learnable = learnable
-        if learnable:
-            self.embed = LearnableEmbedding(D) # Making this persistent to the kernel object
+        if learnable and separate_ll:
+            self.embed = LearnableEmbedding(D, hidden_dim) # Making this persistent to the kernel object
             num_features = self.embed.model[2].out_features
-        
-            if separate_ll:
-                self.log_lengthscale = torch.nn.Parameter(torch.tensor([1.5]*num_features))
-            else:
-                self.log_lengthscale = torch.nn.Parameter(torch.tensor(2.5))
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([log_lengthscale]*num_features))
+        elif learnable:
+            self.embed = LearnableEmbedding(D, hidden_dim) # Making this persistent to the kernel object
+            num_features = self.embed.model[2].out_features
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor([log_lengthscale]*num_features))
         else:
-            if separate_ll:
-                self.log_lengthscale = torch.nn.Parameter(torch.tensor([2.5]*D))
-            else:
-                self.log_lengthscale = torch.nn.Parameter(torch.tensor(2.5))
+            self.log_lengthscale = torch.nn.Parameter(torch.tensor(log_lengthscale))
+
 
     def atomic_kernel(self, d1, d2):
         """

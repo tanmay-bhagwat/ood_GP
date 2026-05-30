@@ -3,7 +3,7 @@ import torch
 
 class GPModel(torch.nn.Module):
 
-    def __init__(self, log_noise=-2.0) -> None:
+    def __init__(self, log_noise=-6.0) -> None:
         super().__init__()
         self.log_noise = torch.nn.Parameter(torch.tensor(log_noise))
     

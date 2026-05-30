@@ -75,7 +75,7 @@ def energy_analyse(db_path, desc_path, strategy):
     # plt.savefig("y_above2.pdf", format="pdf")
     plt.close()
 
-    from utils import train_val_test
+    from prod.utils import train_val_test
     from scipy.stats import norm
     def get_gaussian_pdf(data):
         mu, std = norm.fit(data)
@@ -124,4 +124,70 @@ def energy_analyse(db_path, desc_path, strategy):
     plt.savefig("X_traindims_scatter.pdf", format="pdf")
     plt.show()
 
+
+def min_testtrain_dist(db_path, desc_path, symbols, n_max, l_max, r_cut, sigma, strategy):
+    desc_path = desc_path
+    filepath = db_path
+    symbols = symbols
+    species_ls = list(set(symbols))
+
+    X = torch.load(desc_path, weights_only=False)["saved_desc"]
+    db = np.load(filepath)
+    y_raw = torch.tensor(db['energies'], device="cpu", dtype=torch.float64)
+    print(y_raw.mean(), y_raw.std())
+    norm_y = (y_raw - y_raw.mean())/y_raw.std()
+
+    train_size = 400
+    val_size = int(train_size*0.2)
+    test_size = train_size 
+    bulk_idxs = torch.where(torch.abs(norm_y)<=2)[0]
+    idxs = list([idx for idx in bulk_idxs if idx < X.shape[0]])
+    nonfps_idxs = np.random.choice(idxs, int(train_size*0.5), replace=False)
+    remaining_train = list([idx for idx in idxs if idx not in nonfps_idxs])
+    fps_idxs = fps(X[remaining_train], sample_size=int(train_size*0.5))
+    train_pts = torch.concat([torch.tensor(nonfps_idxs), fps_idxs])
+
+    ood_idxs =  torch.where(torch.abs(norm_y)>=2)[0]
+    remaining_bulk = list(set(bulk_idxs) - set(train_pts))
+    _, __, test_pts = train_val_test(len(norm_y), train_size, val_size, test_size, strategy=strategy, 
+                                        bulk_indices=remaining_bulk, ood_indices=ood_idxs)
+
+    train_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in train_pts]
+    test_X = [ase.Atoms(symbols=symbols, positions=db['coords'][i,:,:]) for i in test_pts]
+
+    soap = dscribe.descriptors.SOAP(species=species_ls, n_max=n_max, l_max=l_max, 
+                                                r_cut=r_cut, sigma=sigma, periodic=False)
+    train_X = torch.tensor(soap.create(train_X))
+    test_X = torch.tensor(soap.create(test_X))
+
+    train_mean = train_X.mean(dim=(0,1), keepdim=True)
+    train_std  = train_X.std(dim=(0,1), keepdim=True)
+
+    train_X = (train_X - train_mean)/(train_std + 1e-8)
+    test_X = (test_X - train_mean)/(train_std + 1e-8)
+
+    train_X_global = train_X.mean(dim=1)
+    test_X_global = test_X.mean(dim=1)
+    dist_matrix = torch.cdist(test_X_global, train_X_global, p=2)
+    ls = torch.min(dist_matrix, dim=1).values
+
+    from scipy.stats import norm
+    def get_gaussian_pdf(data):
+        mu, std = norm.fit(data)
+        x = np.linspace(min(data), max(data), 100)
+        p = norm.pdf(x, mu, std)
+        return x,p,mu,std
+
+    plt.hist(ls, bins=20, density=True)
+    x,p,mu,std = get_gaussian_pdf(ls)
+    print(mu, std)
+    plt.plot(x, p, label=rf'Train Fit ($\mu={mu:.2f}, \sigma={std:.2f}$)')
+    plt.xlabel("Min test-train distance")
+    plt.legend()
+    plt.savefig("data_autocorrelation.pdf", format="pdf")
+    plt.show()
+
+
 # energy_analyse(db_path="rmd17_benzene.npz", desc_path="SoapDesc_6000.pt", strategy="stratified")
+# min_testtrain_dist(db_path="rmd17_benzene.npz", desc_path="SoapDesc_6000.pt", strategy="stratified",
+                #    symbols="C"*6+"H"*6, n_max=12, l_max=8, r_cut=6, sigma=0.5)

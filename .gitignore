@@ -1,0 +1,15 @@
+# Ignore datasets
+*.npy
+*.npz
+*.csv
+*.pt
+*.pth
+*.traj
+*.yml
+*.yaml
+
+# Ignore IDE and OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
