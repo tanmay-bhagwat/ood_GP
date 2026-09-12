@@ -1,0 +1,55 @@
+experiment:
+  seed: 1
+  device: cpu
+  dtype: float64
+  output_directory: artifacts/baseline_soap
+
+dataset:
+  path: data/rmd17_benzene.npz
+  coordinates_key: coords
+  energies_key: energies
+  symbols: [C, C, C, C, C, C, H, H, H, H, H, H]
+  units:
+    energy: kcal/mol
+    force: kcal/mol/angstrom
+    length: angstrom
+
+split:
+  strategy: fps_ood
+  train_size: 400
+  validation_size: 80
+  test_size: 400
+  z_threshold: 2.0
+  train_fps_fraction: 0.5
+  test_bulk_fraction: 0.05
+  validation_bulk_fraction: 0.7
+
+features:
+  kind: soap
+  cache_path: data/soap_features.npz
+  species: [C, H]
+  r_cut: 6.0
+  sigma: 0.75
+  n_max: 12
+  l_max: 8
+  periodic: false
+
+gp:
+  log_noise: -6.0
+  log_signal_std: 3.0
+  log_lengthscale: 0.1
+  hidden_dimension: 16
+  learnable_embedding: true
+  block_size: 50
+  jitter: 1.0e-6
+
+training:
+  epochs: 500
+  learning_rate_lengthscale: 2.0e-3
+  learning_rate_signal: 2.0e-3
+  learning_rate_noise: 1.0e-3
+  learning_rate_embedding: 1.0e-3
+  embedding_weight_decay: 1.0e-4
+  embedding_burn_in_epochs: 50
+  scheduler_patience: 15
+  scheduler_factor: 0.5

@@ -7,6 +7,17 @@
 *.traj
 *.yml
 *.yaml
+!configs/*.yaml
+
+# Runtime outputs
+artifacts/
+data/
+checkpoints/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+build/
+*.egg-info/
 
 # Ignore IDE and OS noise
 .DS_Store
