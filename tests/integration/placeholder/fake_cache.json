@@ -1,0 +1,22 @@
+{
+  "feature_manifest": {
+    "dtype": "float64",
+    "extractor": "soap",
+    "feature_dimension": 702,
+    "granularity": "atomwise",
+    "library_versions": {
+      "dscribe": "2.1.2"
+    },
+    "parameters": {
+      "l_max": 8,
+      "n_max": 12,
+      "periodic": false,
+      "r_cut": 6,
+      "sigma": 0.75,
+      "species": [
+        "H"
+      ]
+    }
+  },
+  "source_dataset_sha256": "xx"
+}

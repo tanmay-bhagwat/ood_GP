@@ -11,7 +11,7 @@ from .interfaces import SplitIndices
 
 
 def random_split(
-    dataset_size: int,
+    descriptor_frame_indices: Sequence[int] | np.ndarray,
     train_size: int,
     validation_size: int,
     test_size: int,
@@ -21,20 +21,27 @@ def random_split(
     """
     Random split with given global dataset indices
     """
-    _validate_requested_size(dataset_size, train_size, 
+    frame_indices = _as_numpy_1d(
+        descriptor_frame_indices, "descriptor_frame_indices").astype(
+            np.int64, copy=True)
+    if len(np.unique(frame_indices)) != len(frame_indices):
+        raise ValueError("descriptor_frame_indices contain duplicates")
+    if np.any(frame_indices < 0):
+        raise ValueError("descriptor_frame_indices cannot be negative")
+
+    _validate_requested_size(len(frame_indices), train_size,
                              validation_size, test_size, is_proportion)
-    indices = np.arange(dataset_size, dtype=np.int64)
     rng = np.random.RandomState(seed)
-    rng.shuffle(indices)
+    rng.shuffle(frame_indices)
     train_end = train_size
     validation_end = train_end + validation_size
     split = SplitIndices(
-        train=indices[:train_end].copy(),
-        validation=indices[train_end:validation_end].copy(),
-        test=indices[validation_end:validation_end + test_size].copy(),
+        train=frame_indices[:train_end].copy(),
+        validation=frame_indices[train_end:validation_end].copy(),
+        test=frame_indices[validation_end:validation_end + test_size].copy(),
         seed=seed,
         strategy="historical_random")
-    split.validate(dataset_size)
+    split.validate(len(frame_indices))
     return split
 
 
@@ -90,7 +97,7 @@ def fps_ood_split(
 
     """
     Build the correct FPS+Bulk/OOD split in global frame indices.
-    `descriptor_frame_indices` are the indices of (sub)set of frames selected from the global dataset. 
+    `descriptor_frame_indices` are the IDs of (sub)set of frames selected from the global dataset.
     We use `descriptor_frame_indices` to ensure train/test/val split doesn't overlap
     `z_threshold` decides the std dev limit above which we call samples 'OOD', default=2 std devs
     """

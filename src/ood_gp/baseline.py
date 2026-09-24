@@ -214,14 +214,7 @@ def _make_split(
         "test_size": int(config["test_size"]),
     }
     if strategy == "random":
-        candidate_indices = feature_cache.frame_indices
-        local_split = random_split(len(candidate_indices), seed=seed, **sizes)
-        return SplitIndices(
-            train=candidate_indices[local_split.train],
-            validation=candidate_indices[local_split.validation],
-            test=candidate_indices[local_split.test],
-            seed=seed,
-            strategy=local_split.strategy)
+        return random_split(feature_cache.frame_indices, seed=seed, **sizes)
     
     if strategy == "fps_ood":
         return fps_ood_split(
@@ -321,4 +314,3 @@ def _torch_dtype(name: str) -> torch.dtype:
     if not isinstance(dtype, torch.dtype):
         raise ValueError(f"unsupported torch dtype: {name}")
     return dtype
-

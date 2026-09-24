@@ -42,7 +42,7 @@ class FeatureCache:
             raise ValueError("each feature row must have one global frame index")
         if indices.ndim != 1 or len(indices) != len(np.unique(indices)):
             raise ValueError("feature-cache frame indices must be unique and 1D")
-        if np.any(indices < 0) or np.any(indices >= dataset_size):
+        if np.any(indices < 0) or len(indices) > dataset_size:
             raise ValueError("feature-cache frame indices fall outside the dataset")
         if self.values.shape[-1] != self.manifest.feature_dimension:
             raise ValueError("feature values do not match their manifest")

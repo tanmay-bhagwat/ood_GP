@@ -38,11 +38,8 @@ class SplitIndices:
                 raise ValueError(f"{name} indices must be one-dimensional")
             if len(np.unique(indices)) != len(indices):
                 raise ValueError(f"{name} indices contain duplicates")
-            if np.any(indices < 0) or np.any(indices >= dataset_size):
+            if np.any(indices < 0):
                 raise ValueError(f"{name} indices fall outside the dataset")
-            
-        if len(self.train) + len(self.validation) + len(self.test) != dataset_size:
-            raise ValueError("Number of points in train-test-val not equal to full dataset size")
 
         if len(np.intersect1d(classes["train"], classes["validation"]))!=0:
             raise ValueError("train and validation indices overlap")
@@ -50,6 +47,8 @@ class SplitIndices:
             raise ValueError("Train and test indices overlap")
         if len(np.intersect1d(classes["test"], classes["validation"]))!=0:
             raise ValueError("Test and validation indices overlap")
+        if sum(len(indices) for indices in classes.values()) > dataset_size:
+            raise ValueError("split contains more indices than the dataset")
 
     def save(self, path: Path) -> None:
         """

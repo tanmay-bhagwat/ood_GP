@@ -252,8 +252,8 @@ def model_train(
     validation_features: torch.Tensor,
     validation_targets: torch.Tensor,
     config: TrainingConfig) -> dict[str, list[float]]:
-    """Optimize historical GP parameters and restore train conditioning.
-
+    """
+    Optimize historical GP parameters and restore train conditioning.
     Validation marginal likelihood selects the best parameter state. Validation
     data never remains attached to the model when this function returns.
     """
