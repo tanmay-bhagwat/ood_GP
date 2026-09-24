@@ -1,4 +1,6 @@
-"""Config-driven orchestration for the corrected SOAP/GP baseline."""
+"""
+Config-driven orchestration for the corrected SOAP/GP baseline
+"""
 
 from __future__ import annotations
 
@@ -70,31 +72,20 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
     with np.load(dataset_path) as dataset:
         coordinates = dataset[dataset_config.get("coordinates_key", None)].copy()
         energies = dataset[dataset_config.get("energies_key", None)].copy()
+        try: 
+            global_frame_indices = dataset["old_indices"].copy()
+        except:
+            print("Could not find global ID's field, assigning default (0,...,N) ID's")
+            global_frame_indices = [i for i in range(energies.shape[0])]
     if coordinates.ndim != 3 or coordinates.shape[-1] != 3:
         raise ValueError("coordinates must have shape (frames, atoms, 3)")
     if len(coordinates) != len(energies):
         raise ValueError("coordinate and energy frame counts differ")
-    
-    ###>>> Store train-val-test sets
-    split_path = output_directory / "split_indices.npz"
-    if split_path.exists() and split_path.with_suffix(".json").exists():
-        split = SplitIndices.load(split_path)
-        split.validate(len(energies))
-        _validate_reused_split(split, split_config, seed)
-    else:
-        split = _make_split(split_config, energies, seed)
-        split.save(split_path)
 
     symbols = list(dataset_config["symbols"])
     if len(symbols) != coordinates.shape[1]:
         raise ValueError("number of symbols does not match coordinate atom count")
-    
-    ###>>> Load or create the entire features set
-    dataset_sha256 = _sha256(dataset_path)
-    cache_path = Path(feature_config.get(
-        "cache_path", output_directory / "soap_features.npz"))
-    feature_cache = _load_or_create_feature_cache(cache_path, coordinates, symbols, extractor, dataset_sha256)
-    
+
     soap_config = SOAPConfig(
         species=tuple(feature_config["species"]),
         r_cut=float(feature_config["r_cut"]),
@@ -105,6 +96,22 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
         dtype=str(experiment["dtype"]),
         device=device)
     extractor = SOAPFeatureExtractor(soap_config)
+    
+    ###>>> Load or create the entire features set
+    dataset_sha256 = _sha256(dataset_path)
+    cache_path = Path(feature_config.get(
+        "cache_path", output_directory / "soap_features.npz"))
+    feature_cache = _load_or_create_feature_cache(cache_path, coordinates, symbols, global_frame_indices, extractor, dataset_sha256)
+
+    ###>>> Store train-val-test sets
+    split_path = output_directory / "split_indices.npz"
+    if split_path.exists() and split_path.with_suffix(".json").exists():
+        split = SplitIndices.load(split_path)
+        split.validate(len(energies))
+        _validate_reused_split(split, split_config, seed)
+    else:
+        split = _make_split(split_config, energies, seed)
+        split.save(split_path)
 
     train_batch = feature_cache.select(split.train)
     validation_batch = feature_cache.select(split.validation)
@@ -116,10 +123,12 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
     validation_X = feature_normalization.transform(validation_batch.values).to(device=device, dtype=dtype)
     test_X = feature_normalization.transform(test_batch.values).to(device=device, dtype=dtype)
 
+    frame_row_mapping = {frame:row for row,frame in enumerate(global_frame_indices)}
+
     all_targets = torch.as_tensor(energies, dtype=dtype, device=device)
-    train_targets_raw = all_targets[torch.as_tensor(split.train, device=device)]
-    validation_targets_raw = all_targets[torch.as_tensor(split.validation, device=device)]
-    test_targets_raw = all_targets[torch.as_tensor(split.test, device=device)]
+    train_targets_raw = all_targets[[frame_row_mapping[i] for i in split.train]]
+    validation_targets_raw = all_targets[[frame_row_mapping[i] for i in split.validation]]
+    test_targets_raw = all_targets[[frame_row_mapping[i] for i in split.test]]
     
     target_normalization = fit_target_normalization(train_targets_raw)
     train_y = target_normalization.transform(train_targets_raw)
@@ -247,7 +256,7 @@ def _validate_reused_split(
 
 
 def _load_or_create_feature_cache(
-    path: Path, coordinates: np.ndarray, symbols: list[str],
+    path: Path, coordinates: np.ndarray, symbols: list[str], global_frame_indices: list[int],
     extractor: SOAPFeatureExtractor, dataset_sha256: str) -> FeatureCache:
 
     """
@@ -266,12 +275,14 @@ def _load_or_create_feature_cache(
         LOGGER.info("Loaded feature cache from %s", path)
         return cache
 
+    if not path.exists() and global_frame_indices is None:
+        raise ValueError("Global frame ID's must be provided when cache is being created.")
     structures = [Atoms(symbols=symbols, positions=positions)
                   for positions in coordinates]
     batch = extractor.extract(structures)
     cache = FeatureCache(
         values=batch.values.detach().cpu(),
-        frame_indices=np.arange(len(coordinates), dtype=np.int64),
+        frame_indices=global_frame_indices,
         manifest=batch.manifest,
         source_dataset_sha256=dataset_sha256)
     cache.validate(len(coordinates))
