@@ -9,8 +9,6 @@ from dataclasses import asdict
 import logging
 from pathlib import Path
 from ood_gp.baseline import load_config, run_baseline
-
-
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("config", type=Path, help="Path to baseline YAML config")

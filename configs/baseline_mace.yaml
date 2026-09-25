@@ -6,6 +6,7 @@ experiment:
 
 dataset:
   path: data/rmd17_benzene.npz
+  frames_key: old_indices
   coordinates_key: coords
   energies_key: energies
   forces_key: forces
