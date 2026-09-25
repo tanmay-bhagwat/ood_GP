@@ -14,6 +14,7 @@ dependencies = [
     "numpy",
     "PyYAML",
     "torch",
+    "tqdm",
 ]
 
 [project.optional-dependencies]

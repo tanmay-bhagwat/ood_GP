@@ -75,7 +75,7 @@ def energy_analyse(db_path, desc_path, strategy):
     # plt.savefig("y_above2.pdf", format="pdf")
     plt.close()
 
-    from prod.utils import train_val_test
+    from legacy.utils import train_val_test
     from scipy.stats import norm
     def get_gaussian_pdf(data):
         mu, std = norm.fit(data)

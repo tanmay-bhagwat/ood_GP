@@ -1,11 +1,11 @@
 import torch
 from torch.utils.data import DataLoader
-from prod.models import GPModel
-from prod.train import GPTrainer
-from prod.utils import *
-from prod.descriptors import AtomicDescriptor
-from prod.kernels import StructKernel
-from prod.data_visualize import *
+from legacy.models import GPModel
+from legacy.train import GPTrainer
+from legacy.utils import *
+from legacy.descriptors import AtomicDescriptor
+from legacy.kernels import StructKernel
+from legacy.data_visualize import *
 
 TRAIN_X_MEAN, TRAIN_X_STD = 0, 1
 TRAIN_Y_MEAN, TRAIN_Y_STD = 0, 1
