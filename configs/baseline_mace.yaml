@@ -1,0 +1,27 @@
+experiment:
+  seed: 1
+  device: cpu
+  dtype: float64
+  output_directory: artifacts/baseline_mace
+
+dataset:
+  path: data/rmd17_benzene.npz
+  coordinates_key: coords
+  energies_key: energies
+  forces_key: forces
+  symbols: [C, C, C, C, C, C, H, H, H, H, H, H]
+  units:
+    energy: kcal/mol
+    force: kcal/mol/angstrom
+    length: angstrom
+
+split:
+  strategy: fps_ood
+  train_size: 900
+  validation_size: 50
+  test_size: 50
+  z_threshold: 2.0
+  train_fps_fraction: 0.5
+  test_bulk_fraction: 0.05
+  validation_bulk_fraction: 0.7
+  splits_path: splits/baseline_mace
