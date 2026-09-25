@@ -280,6 +280,8 @@ def model_train(
     best_state: dict[str, torch.Tensor] | None = None
 
     for epoch in range(config.epochs):
+        if epoch%10==0: 
+            print(f"Epoch {epoch}\n")
         model.train()
         if model.kernel.embedding is not None:
             embedding_enabled = epoch > config.embedding_burn_in_epochs
