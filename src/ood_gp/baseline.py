@@ -110,7 +110,7 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
         split.validate(len(energies))
         _validate_reused_split(split, split_config, seed)
     else:
-        split = _make_split(split_config, energies, seed)
+        split = _make_split(split_config, energies, feature_cache, seed)
         split.save(split_path)
 
     train_batch = feature_cache.select(split.train)
