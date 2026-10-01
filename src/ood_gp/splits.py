@@ -111,7 +111,7 @@ def fps_ood_split(
         raise ValueError("each descriptor row must have one global frame index")
     if len(np.unique(frame_indices)) != len(frame_indices):
         raise ValueError("descriptor_frame_indices contain duplicates")
-    if np.any(frame_indices < 0) or np.any(frame_indices >= dataset_size):
+    if np.any(frame_indices < 0):
         raise ValueError("descriptor frame indices fall outside the dataset")
     _validate_requested_size(
         len(frame_indices), train_size, validation_size, test_size)
