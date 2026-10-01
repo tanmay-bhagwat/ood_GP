@@ -133,11 +133,10 @@ def fps_ood_split(
     train_rng_rows = rng.choice(candidate_rows, train_rng_size, replace=False).astype(np.int64)
     available_fps_rows = np.setdiff1d(candidate_rows, train_rng_rows)
 
-    ###>>> farthest_point_sampling returns fps-rows local indices, so we must match them to the right dataset row
+    ###>>> farthest_point_sampling returns indices, so we must match them to the right dataset row
     fps_local = farthest_point_sampling(descriptor_values[available_fps_rows], train_fps_size, seed=seed)
     fps_rows = available_fps_rows[fps_local]
-    train_rows = np.concatenate((fps_rows, train_rng_rows))
-    train = frame_indices[train_rows]
+    train = np.concatenate((fps_rows, train_rng_rows))
 
     ###>>> Standardize with train dataset statistics
     energy_std = energy_array[train].std()
@@ -147,9 +146,8 @@ def fps_ood_split(
     normalized_energy = (energy_array - energy_mean) / energy_std
 
     ###>>> Distinguish between bulk and ood dataset frame indices
-    candidate_z = normalized_energy[frame_indices]
-    bulk_global = frame_indices[np.abs(candidate_z) <= z_threshold]
-    ood_global = frame_indices[np.abs(candidate_z) > z_threshold]
+    bulk_global = np.arange(len(frame_indices))[np.abs(normalized_energy) <= z_threshold]
+    ood_global = np.arange(len(frame_indices))[np.abs(normalized_energy) > z_threshold]
 
     ###>>> Separating total train into bulk and ood
     train_is_bulk = np.abs(normalized_energy[train]) <= z_threshold
@@ -177,9 +175,9 @@ def fps_ood_split(
     validation_ood = split_rng.choice(validation_ood_pool, n_validation_ood, replace=False)
 
     split = SplitIndices(
-        train=train,
-        validation=np.concatenate((validation_bulk, validation_ood)).astype(np.int64),
-        test=np.concatenate((test_bulk, test_ood)).astype(np.int64),
+        train=frame_indices[train],
+        validation=frame_indices[np.concatenate((validation_bulk, validation_ood)).astype(np.int64)],
+        test=frame_indices[np.concatenate((test_bulk, test_ood)).astype(np.int64)],
         seed=seed,
         strategy="fps_ood",
         metadata={
