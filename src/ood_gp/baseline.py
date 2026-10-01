@@ -108,9 +108,11 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
     if split_path.exists() and split_path.with_suffix(".json").exists():
         split = SplitIndices.load(split_path)
         split.validate(len(energies))
-        _validate_reused_split(split, split_config, seed)
+        _validate_reused_split(split=split, 
+                               config=split_config, seed=seed)
     else:
-        split = _make_split(split_config, energies, feature_cache, seed)
+        split = _make_split(config=split_config, energies=energies, 
+                            feature_cache=feature_cache, seed=seed)
         split.save(split_path)
 
     train_batch = feature_cache.select(split.train)
