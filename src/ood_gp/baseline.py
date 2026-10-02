@@ -115,6 +115,7 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
                             feature_cache=feature_cache, seed=seed)
         split.save(split_path)
 
+    LOGGER.info(f"Loading splits from {split_path}")
     train_batch = feature_cache.select(split.train)
     validation_batch = feature_cache.select(split.validation)
     test_batch = feature_cache.select(split.test)
@@ -148,6 +149,8 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
         jitter=float(gp_config_raw.get("jitter", 1.0e-6)))
     model = ExactGPRegressor(model_config).to(device=device, dtype=dtype)
     training_config = TrainingConfig(**training_config_raw)
+
+    LOGGER.info(f"Starting training")
     history = model_train(
         model,
         train_X,
