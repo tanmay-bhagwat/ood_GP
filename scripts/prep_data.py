@@ -118,12 +118,13 @@ def prepare_data_splits(config: dict[str, dict]) -> None:
                                 "REF_energy": float(energies[j].item()),
                                 "global_frame_id": int(global_indices[j]),
                                 "dataset_row": int(j),
-                                "trajectory_id": Path(dataset_path).stem,
+                                "trajectory_id": Path(dataset_path).stem
                             },
                             arrays={"REF_forces":forces[j,:,:]}) for j in rows]
 
         write(output_paths[split_name], structures, format="extxyz")
 
+    ### Write out the metadata
     dataset_metadata={
         "schema_version": 1,
         "generator":{
@@ -189,6 +190,7 @@ def prepare_data_splits(config: dict[str, dict]) -> None:
     (output_directory / "data_manifest.json").write_text(
         json.dumps(dataset_metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8")
+
 
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
