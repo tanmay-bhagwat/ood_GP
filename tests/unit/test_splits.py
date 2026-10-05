@@ -77,6 +77,7 @@ def test_fps_returns_unique_local_rows() -> None:
 
 
 def test_fps_split_maps_rows_to_global_ids() -> None:
+    np.random.seed(1)
     energies = torch.arange(30)
     descriptors = torch.randn((30,2), generator=torch.Generator().manual_seed(1))
     descriptor_frame_indices = np.random.choice(np.arange(30,150), size=(30,), replace=False)

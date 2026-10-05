@@ -22,8 +22,8 @@ from .evaluation import BaselineMetrics, evaluate_predictions
 from .features import (FeatureCache, SOAPConfig, SOAPFeatureExtractor,
                        fit_feature_normalization, fit_target_normalization,
                        load_feature_cache, save_feature_cache)
-from .gp import (ExactGPRegressor, GPConfig, 
-                 TrainingConfig, model_train)
+from .gp import ExactGPRegressor, GPConfig 
+from .train import TrainingConfig, model_train
 from .splits import fps_ood_split, random_split
 
 LOGGER = logging.getLogger(__name__)
@@ -159,8 +159,9 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
         validation_y,
         training_config)
 
+
     # Explicitly condition on training data after validation/model selection.
-    model.fit(train_X, train_y)
+    model.condition(train_X, train_y)
     model.eval()
     with torch.no_grad():
         prediction = model.predict(test_X)
