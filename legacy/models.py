@@ -1,6 +1,5 @@
 import torch
 
-
 class GPModel(torch.nn.Module):
 
     def __init__(self, log_noise=-6.0) -> None:

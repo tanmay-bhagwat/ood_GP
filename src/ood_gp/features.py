@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Protocol, Sequence
 import json
 import numpy as np
 import torch
+from tqdm import tqdm
 from .interfaces import FeatureManifest, NormalizationState
 
 if TYPE_CHECKING:
@@ -109,7 +110,20 @@ class SOAPFeatureExtractor:
             periodic=self.config.periodic)
         
         ###>>> Make the actual SOAP features
-        array = soap.create(list(structures))
+        batch_size = 32
+        array = None
+        with tqdm(total=len(structures), desc="SOAP extraction", unit="structure",
+                  mininterval=5.0) as progress:
+            for start in range(0, len(structures), batch_size):
+                batch = soap.create(list(structures[start:start + batch_size]))
+                if batch.ndim == 2:
+                    batch = batch[np.newaxis, ...]
+                if array is None:
+                    array = np.empty((len(structures), *batch.shape[1:]), dtype=batch.dtype)
+                array[start:start + len(batch)] = batch
+                progress.update(len(batch))
+        if len(structures) == 1:
+            array = array[0]
         values = torch.as_tensor(array, dtype=_torch_dtype(self.config.dtype)).to(self.config.device)
 
         manifest = FeatureManifest(
@@ -167,7 +181,7 @@ def save_feature_cache(path: Path, cache: FeatureCache) -> None:
     cache.validate(int(indices.max()) + 1)
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
-        path,
+        path, 
         features=cache.values.detach().cpu().numpy(),
         frame_indices=indices)
     path.with_suffix(".json").write_text(

@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 import json
 from pathlib import Path
 from typing import Any
-import copy
+
 import torch
 from .interfaces import FeatureManifest, PredictionResult
 
@@ -23,18 +23,6 @@ class GPConfig:
     block_size: int = 50
     jitter: float = 1.0e-6
 
-
-@dataclass(frozen=True)
-class TrainingConfig:
-    epochs: int = 500
-    learning_rate_lengthscale: float = 2.0e-3
-    learning_rate_signal: float = 2.0e-3
-    learning_rate_noise: float = 1.0e-3
-    learning_rate_embedding: float = 1.0e-3
-    embedding_weight_decay: float = 1.0e-4
-    embedding_burn_in_epochs: int = 50
-    scheduler_patience: int = 15
-    scheduler_factor: float = 0.5
 
 
 class LearnableEmbedding(torch.nn.Module):
@@ -112,6 +100,8 @@ class StructureKernel(torch.nn.Module):
         return signal_std**2 * torch.exp(exponent).sum(dim=(2, 3))
 
 
+### Keep this as torch.nn.Module, remove the Loss module from this
+### We could attach the Loss object to a Model object to access Model params
 class ExactGPRegressor(torch.nn.Module):
     """
     Dense exact GP preserving the historical noise and jitter conventions
@@ -128,7 +118,7 @@ class ExactGPRegressor(torch.nn.Module):
         self._cholesky: torch.Tensor | None = None
         self._alpha: torch.Tensor | None = None
 
-    def fit(self, features: torch.Tensor, targets: torch.Tensor) -> "ExactGPRegressor":
+    def condition(self, features: torch.Tensor, targets: torch.Tensor) -> "ExactGPRegressor":
         """
         Condition the GP on data; hyperparameter optimization is separate
         """
@@ -143,6 +133,8 @@ class ExactGPRegressor(torch.nn.Module):
         self._alpha = None
         return self
 
+
+    ### Make this into a Loss module
     def negative_log_likelihood(self) -> torch.Tensor:
         """
         Compute the exact negative log marginal likelihood
@@ -236,77 +228,11 @@ class ExactGPRegressor(torch.nn.Module):
         payload: dict[str, Any] = torch.load(
             directory / "gp_state.pt", map_location=device, weights_only=True)
         model.load_state_dict(payload["state_dict"])
-        model.fit(payload["train_X"].to(device), payload["train_y"].to(device))
+        model.condition(payload["train_X"].to(device), payload["train_y"].to(device))
         return model
+
 
     def _require_training_data(self) -> tuple[torch.Tensor, torch.Tensor]:
         if self.train_X is None or self.train_y is None:
             raise RuntimeError("fit must be called before NLL or prediction")
         return self.train_X, self.train_y
-
-
-def model_train(
-    model: ExactGPRegressor,
-    train_features: torch.Tensor,
-    train_targets: torch.Tensor,
-    validation_features: torch.Tensor,
-    validation_targets: torch.Tensor,
-    config: TrainingConfig) -> dict[str, list[float]]:
-    """
-    Optimize historical GP parameters and restore train conditioning.
-    Validation marginal likelihood selects the best parameter state. Validation
-    data never remains attached to the model when this function returns.
-    """
-    parameter_groups: list[dict[str, Any]] = [
-        {"params": [model.kernel.log_lengthscale],
-         "lr": config.learning_rate_lengthscale},
-        {"params": [model.kernel.log_signal_std],
-         "lr": config.learning_rate_signal},
-        {"params": [model.log_noise], 
-         "lr": config.learning_rate_noise}]
-    if model.kernel.embedding is not None:
-        parameter_groups.append(
-            {"params": model.kernel.embedding.parameters(),
-             "lr": config.learning_rate_embedding,
-             "weight_decay": config.embedding_weight_decay})
-    optimizer = torch.optim.Adam(parameter_groups)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer,
-        mode="min",
-        factor=config.scheduler_factor,
-        patience=config.scheduler_patience)
-    history: dict[str, list[float]] = {"train_nll": [], "validation_nll": []}
-    best_validation = float("inf")
-    best_state: dict[str, torch.Tensor] | None = None
-
-    for epoch in range(config.epochs):
-        model.train()
-        if model.kernel.embedding is not None:
-            embedding_enabled = epoch > config.embedding_burn_in_epochs
-            for parameter in model.kernel.embedding.parameters():
-                parameter.requires_grad = embedding_enabled
-
-        model.fit(train_features, train_targets)
-        train_nll = model.negative_log_likelihood()
-        optimizer.zero_grad()
-        train_nll.backward()
-        optimizer.step()
-
-        model.eval()
-        with torch.no_grad():
-            model.fit(validation_features, validation_targets)
-            validation_nll = model.negative_log_likelihood()
-        scheduler.step(validation_nll)
-        train_value = float(train_nll.detach().cpu())
-        validation_value = float(validation_nll.detach().cpu())
-        history["train_nll"].append(train_value)
-        history["validation_nll"].append(validation_value)
-        if validation_value <= best_validation:
-            best_validation = validation_value
-            best_state = copy.deepcopy(model.state_dict())
-
-    if best_state is None:
-        raise RuntimeError("training completed without a model state")
-    model.load_state_dict(best_state)
-    model.fit(train_features, train_targets)
-    return history

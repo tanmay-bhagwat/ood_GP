@@ -1,7 +1,8 @@
 """Reusable SOAP and exact-GP baseline components."""
 
 from .interfaces import FeatureManifest, PredictionResult, SplitIndices
-from .gp import ExactGPRegressor, GPConfig, StructureKernel, TrainingConfig
+from .gp import ExactGPRegressor, GPConfig, StructureKernel 
+from .train import TrainingConfig
 
 __all__ = [
     "ExactGPRegressor",

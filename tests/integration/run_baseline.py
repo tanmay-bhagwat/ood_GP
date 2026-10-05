@@ -13,11 +13,8 @@ from ood_gp.features import (
     save_feature_cache, load_feature_cache,
     fit_feature_normalization,
     fit_target_normalization)
-from ood_gp.gp import (
-    GPConfig, 
-    ExactGPRegressor, 
-    TrainingConfig,
-    model_train)
+from ood_gp.gp import GPConfig, ExactGPRegressor 
+from ood_gp.train import TrainingConfig, model_train
  
 
 def test_run_baseline(tmp_path: Path):
@@ -167,7 +164,7 @@ def test_run_baseline(tmp_path: Path):
             validation_y,
             train_config)
 
-    model.fit(train_X, train_y)
+    model.condition(train_X, train_y)
     model.eval()
     with torch.no_grad():
         prediction = model.predict(test_X)

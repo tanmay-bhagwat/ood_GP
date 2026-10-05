@@ -1,6 +1,6 @@
 experiment:
   seed: 1
-  device: cuda
+  device: cpu
   dtype: float64
   output_directory: artifacts/baseline_soap
 
