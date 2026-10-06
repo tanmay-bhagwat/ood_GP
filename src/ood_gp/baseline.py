@@ -165,7 +165,7 @@ def run_baseline(config: Mapping[str, Any]) -> BaselineMetrics:
     model.eval()
     with torch.no_grad():
         prediction = model.predict(test_X)
-    metrics = evaluate_predictions(prediction, test_y)
+    metrics = evaluate_predictions(prediction, test_y, target_normalization)
 
     model.save(output_directory / "gp_bundle", train_batch.manifest)
     predictions_path = output_directory / "predictions.npz"

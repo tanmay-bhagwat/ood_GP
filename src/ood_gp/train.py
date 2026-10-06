@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 from dataclasses import asdict, dataclass
 from typing import Any
 import copy
 
 import torch
 
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .gp import ExactGPRegressor
 
 @dataclass(frozen=True)
 class TrainingConfig:
@@ -19,7 +24,7 @@ class TrainingConfig:
 
 
 def model_train(
-    model: torch.nn.Module,
+    model: ExactGPRegressor,
     train_features: torch.Tensor,
     train_targets: torch.Tensor,
     validation_features: torch.Tensor,

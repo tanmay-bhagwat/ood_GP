@@ -24,7 +24,6 @@ class GPConfig:
     jitter: float = 1.0e-6
 
 
-
 class LearnableEmbedding(torch.nn.Module):
     """
     The two-layer embedding used in 16D experiment
@@ -100,8 +99,6 @@ class StructureKernel(torch.nn.Module):
         return signal_std**2 * torch.exp(exponent).sum(dim=(2, 3))
 
 
-### Keep this as torch.nn.Module, remove the Loss module from this
-### We could attach the Loss object to a Model object to access Model params
 class ExactGPRegressor(torch.nn.Module):
     """
     Dense exact GP preserving the historical noise and jitter conventions
@@ -117,6 +114,7 @@ class ExactGPRegressor(torch.nn.Module):
         self.train_y: torch.Tensor | None = None
         self._cholesky: torch.Tensor | None = None
         self._alpha: torch.Tensor | None = None
+
 
     def condition(self, features: torch.Tensor, targets: torch.Tensor) -> "ExactGPRegressor":
         """
@@ -134,7 +132,6 @@ class ExactGPRegressor(torch.nn.Module):
         return self
 
 
-    ### Make this into a Loss module
     def negative_log_likelihood(self) -> torch.Tensor:
         """
         Compute the exact negative log marginal likelihood
@@ -163,11 +160,13 @@ class ExactGPRegressor(torch.nn.Module):
         self._alpha = alpha
         return nll
 
+
     def nll(self) -> torch.Tensor:
         """
         Historical method alias
         """
         return self.negative_log_likelihood()
+
 
     def predict(self, test_features: torch.Tensor) -> PredictionResult:
         """
@@ -182,12 +181,12 @@ class ExactGPRegressor(torch.nn.Module):
         triangular = torch.linalg.solve_triangular(
             self._cholesky, K_s.T.double(), upper=False)
         covariance = K_ss.double() - triangular.T @ triangular
-        noise = torch.exp(self.log_noise).to(
-            device=test_features.device, dtype=torch.float64)
+        noise = torch.exp(self.log_noise).to(device=test_features.device, dtype=torch.float64)
         return PredictionResult(
             mean=mean.squeeze(-1),
             variance=torch.diag(covariance),
             noise_variance=noise)
+    
 
     def save(self, directory: Path, feature_manifest: FeatureManifest) -> None:
         """
@@ -207,8 +206,8 @@ class ExactGPRegressor(torch.nn.Module):
                  "feature_manifest": feature_manifest.to_dict()},
                 indent=2,
                 sort_keys=True)
-                + "\n",
-            encoding="utf-8")
+                + "\n")
+
 
     @classmethod
     def load(cls,
