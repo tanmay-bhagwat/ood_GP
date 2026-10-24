@@ -5,11 +5,10 @@ to create the Atoms objects needed to make the fine-tuning data for MACE
 
 from __future__ import annotations
 from pathlib import Path
-from typing import Any
 import hashlib
-import json
+import json, yaml
+import sys
 
-import yaml
 import numpy as np
 import torch
 from ase import Atoms
@@ -17,6 +16,10 @@ import ase.units
 from ase.io import write
 
 from ood_gp.interfaces import SplitIndices
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 
 def load_config(config_path: Path) -> None:
@@ -52,6 +55,8 @@ def load_config(config_path: Path) -> None:
     if validation_size != len(split.validation):
         raise ValueError("Validation size does not match with SOAP validation size")
 
+    return config
+
 
 def prepare_data_splits(config: dict[str, dict]) -> None:
     """
@@ -62,7 +67,6 @@ def prepare_data_splits(config: dict[str, dict]) -> None:
     dtype = getattr(torch, name, None)
     if not isinstance(dtype, torch.dtype):
         raise ValueError(f"{dtype} not a supported torch dtype")
-    device = experiment_config.get("device", "cpu")
 
     dataset_config = config["dataset"]
     dataset_path = dataset_config["path"]
@@ -105,22 +109,29 @@ def prepare_data_splits(config: dict[str, dict]) -> None:
         "validation": output_directory / "validation.extxyz",
     }
 
+    from ase.calculators.singlepoint import SinglePointCalculator
     for split_name, split_rows in (
             ("train", split.train),
             ("test", split.test),
             ("validation", split.validation)):
-    
+
+        structures = []
         rows = [frame_row_mapping[i] for i in split_rows]
-        structures = [Atoms(positions=coords[j,:,:], 
-                            symbols=symbols,
-                            pbc=False,
-                            info={
-                                "REF_energy": float(energies[j].item()),
-                                "global_frame_id": int(global_indices[j]),
-                                "dataset_row": int(j),
-                                "trajectory_id": Path(dataset_path).stem
-                            },
-                            arrays={"REF_forces":forces[j,:,:]}) for j in rows]
+        for j in rows:
+            a = Atoms(positions=coords[j,:,:],
+                      symbols=symbols,
+                      pbc=False,
+                      info={
+                          "global_frame_id": int(global_indices[j]),
+                          "dataset_row": int(j),
+                          "trajectory_id": Path(dataset_path).stem
+                        }
+                    )
+            calc = SinglePointCalculator(a,
+                                         energy=float(energies[j].item()),
+                                         forces=forces[j,:,:])
+            a.calc = calc
+            structures.append(a)
 
         write(output_paths[split_name], structures, format="extxyz")
 
@@ -192,9 +203,67 @@ def prepare_data_splits(config: dict[str, dict]) -> None:
         encoding="utf-8")
 
 
+def _test_data_export(config:dict[str, dict], sample_size:int=3):
+    dataset_config = config["dataset"]
+    split_config = config["split"]
+
+    splits = SplitIndices.load(split_config["splits_path"])
+    splits.validate(split_config["train_size"] + 
+                    split_config["validation_size"] +
+                    split_config["test_size"])
+
+    experiment_config = config["experiment"]
+    output_directory = Path(experiment_config["output_directory"])
+
+    from ase.io import read
+    # train_sample = read(output_directory/"train.extxyz", ":")
+    train_sample = read(output_directory/"validation.extxyz", ":")
+    assert len(train_sample) == split_config["validation_size"] > 0
+    sample = train_sample[:sample_size]
+
+    energy_unit = dataset_config["units"]["energy"]
+    if energy_unit == "kcal/mol":
+        factor = ase.units.kcal / ase.units.mol
+    elif energy_unit == "eV":
+        factor = 1.0
+    else:
+        raise ValueError(f"Unsupported energy unit: {energy_unit}")
+
+    assert dataset_config["units"]["length"] == "angstrom"
+    expected_force_unit = f"{energy_unit}/angstrom"
+    assert dataset_config["units"]["force"] == expected_force_unit
+
+    with np.load(dataset_config["path"]) as dataset:
+        for struct in sample:
+            row = struct.info["dataset_row"]
+            print(row)
+            orig_positions = dataset[dataset_config["coordinates_key"]][row]
+            np.testing.assert_allclose(orig_positions, struct.get_positions(),
+                                       atol=0, rtol=1e-8)
+            
+            assert dataset_config["symbols"] == struct.get_chemical_symbols()
+
+            orig_energy = dataset[dataset_config["energies_key"]][row]
+            np.testing.assert_allclose(orig_energy*factor, struct.get_potential_energy(),
+                                       rtol=1e-8, atol=0)
+
+            orig_forces = dataset[dataset_config["forces_key"]][row]
+            np.testing.assert_allclose(orig_forces*factor, struct.get_forces(),
+                                       rtol=1e-8, atol=1e-8)
+        
+
+
 def _sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+if __name__=="__main__":
+
+    config_path = PROJECT_ROOT/"configs/baseline_mace.yaml"
+    config = load_config(config_path)
+    prepare_data_splits(config)
+    _test_data_export(config)

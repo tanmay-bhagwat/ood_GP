@@ -18,11 +18,11 @@ dataset:
 
 split:
   strategy: fps_ood
-  train_size: 900
-  validation_size: 50
-  test_size: 50
+  train_size: 600
+  validation_size: 200
+  test_size: 200
   z_threshold: 2.0
   train_fps_fraction: 0.5
   test_bulk_fraction: 0.05
   validation_bulk_fraction: 0.7
-  splits_path: splits/baseline_mace
+  splits_path: artifacts/baseline_soap/split_indices.npz
