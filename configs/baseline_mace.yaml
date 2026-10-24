@@ -1,28 +1,46 @@
-experiment:
-  seed: 1
-  device: cpu
-  dtype: float64
-  output_directory: artifacts/baseline_mace
+name: benzene_off23_naive
 
-dataset:
-  path: data/rmd17_benzene.npz
-  frames_key: old_indices
-  coordinates_key: coords
-  energies_key: energies
-  forces_key: forces
-  symbols: [C, C, C, C, C, C, H, H, H, H, H, H]
-  units:
-    energy: kcal/mol
-    force: kcal/mol/angstrom
-    length: angstrom
+foundation_model: models/MACE-OFF23_small.model
+multiheads_finetuning: false
 
-split:
-  strategy: fps_ood
-  train_size: 600
-  validation_size: 200
-  test_size: 200
-  z_threshold: 2.0
-  train_fps_fraction: 0.5
-  test_bulk_fraction: 0.05
-  validation_bulk_fraction: 0.7
-  splits_path: artifacts/baseline_soap/split_indices.npz
+train_file: artifacts/baseline_mace/train.extxyz
+valid_file: artifacts/baseline_mace/validation.extxyz
+test_file: artifacts/baseline_mace/test.extxyz
+energy_key: energy
+forces_key: forces
+# total_charge_key: total_charge
+# total_spin_key: total_spin
+
+E0s: estimated
+loss: weighted
+energy_weight: 10.0
+forces_weight: 0.0
+ema: true
+ema_decay: 0.999
+batch_size: 10
+valid_batch_size: 20
+max_num_epochs: 1000
+clip_grad: 1.0
+
+optimizer: adam
+lr: 0.001
+scheduler: ReduceLROnPlateau
+scheduler_patience: 20
+lr_factor: 0.5
+patience: 100
+weight_decay: 0.0
+scaling: std_scaling
+amsgrad: true  
+swa: false
+
+default_dtype: float64
+device: cuda
+seed: 1
+
+model_dir: artifacts/baseline_mace/finetune/models
+checkpoints_dir: artifacts/baseline_mace/finetune/checkpoints
+log_dir: artifacts/baseline_mace/finetune/logs
+results_dir: artifacts/baseline_mace/finetune/results
+
+eval_interval: 1
+error_table: PerAtomRMSE
